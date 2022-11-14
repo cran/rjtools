@@ -1,0 +1,38 @@
+---
+title: "The Article Template"
+author: Sherry Zhang
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{rjtools-template}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{r setup, echo = FALSE}
+library(rjtools)
+library(rmarkdown)
+```
+
+The source files to create an html and pdf sample article are available [here](https://github.com/rjournal/rjtools/tree/main/inst/sample-article). The rendered pdf output can be viewed [here](https://github.com/rjournal/rjtools/blob/main/inst/sample-article/article.pdf)  and below is the html:
+
+```{r echo = FALSE}
+# webshot2::webshot(here::here("inst/sample-article/article.html"),
+#                   file = here::here("vignettes/figures/webshot.png"),
+#                   delay = 1, zoom = 4, vwidth = 1000, vheight = 300)
+```
+
+```{r, out.width="100%", out.height="100%"}
+knitr::include_graphics("figures/webshot.png")
+```
+
+

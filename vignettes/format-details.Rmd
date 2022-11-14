@@ -1,0 +1,210 @@
+---
+title: "More details on the R Journal format"
+author: H. Sherry Zhang and Di Cook
+output: bookdown::html_vignette2
+vignette: >
+  %\VignetteIndexEntry{format-details}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = FALSE}
+library(rjtools)
+```
+
+This article will work you the key parts of an R Journal template article as produced by `create_article()`. This assumes that you have already followed the "Create an R Journal Article" vignette, have created your initial article, and you have been able to knit both the `pdf` and `html` article. Here we explain the important parts you can see in the `Rmd` file that generates both output types, and how to modify them, and to debug if problems arise.
+
+# YAML header
+
+This has these components:
+
+- `title: "your article title"`
+- `abstract: > ....`
+- `author:` with separate lines for `name:`, `affiliation:`, `address:`, `url:`, `orcid:`, `email:` and a block for each author
+- output format lines should look like
+```
+output:
+  rjtools::rjournal_web_article
+```
+- `bibliography: RJreferences.bib`
+
+# Figures
+
+If you would like to have an interactive plot in the html output, you will also need to provide a static plot for the pdf output. You will need two code blocks, one for each, with conditional `eval` options. The inline reference will also need to do a conditional `eval` to write the appropriate reference link depending on the html or pdf knitting. 
+
+Of course, if only a static plot is to be rendered in both outputs, a single code chunk and a single inline reference will be sufficient. 
+
+Note that the structure of a thorough caption is three components: (1) what is the plot/table about, (2) specific details of plot/table, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
+
+## Static
+
+For a static graph, use `\@ref(fig:penguins)` for in-text reference and your code chunk should look something like this:
+
+````markdown
+`r ''````{r penguins, fig.cap="This is the figure caption"}
+penguins %>% 
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g, 
+             color = species)) + 
+  geom_point()
+```
+````
+
+## Interactive 
+
+For an interactive graphic, use separate code chunks to create a static plot for the pdf article and an interactive one for the html article:
+
+````markdown
+`r ''````{r penguins-static, eval=knitr::is_latex_output(), fig.cap="This is the figure caption."}
+penguins %>%
+  ggplot(aes(x = bill_depth_mm, y = bill_length_mm,
+             color = species)) +
+  geom_point()
+```
+````
+
+````markdown
+`r ''````{r penguins-interactive, eval=knitr::is_html_output(), fig.cap="This is the figure caption."}
+p1 <- penguins %>%
+  ggplot(aes(x = bill_depth_mm, y = bill_length_mm,
+             color = species)) +
+  geom_point()
+plotly::ggplotly(p1)
+```
+````
+
+Notice here you need `eval=knitr::is_html_output()` and `eval=knitr::is_latex_output()` to make sure that the pdf output only evaluates the first chunk and the html output only evaluates the second. 
+
+For in-text citation, you will something like this: 
+
+    Figure `r "\u0060r"` knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:penguins-interactive)', '\\@ref(fig:penguins-static)'))`r "\u0060"` shows ...
+    
+This line is quite complicated so let's dissect its components: the if-else statement uses `knitr::is_html_output()` to decide if the output is an html or pdf output. For an html output, `\\@ref(fig:penguins-interactive)` will be used to reference the chunk of the interactive graphic. If the output is a pdf, `\\@ref(fig:penguins-static)` will reference the static figure. Finally, `knitr::asis_output()` makes sure that the reference string is parsed as it is, so no special treatment on `\@`.
+
+## Sizing
+
+For static plots, you can use `fig.width` and `fig.height` to adjust figure sizing for both pdf and html outputs. 
+
+For html output, distill provides several larger than text-width layouts, i.e. `l-body` (textwidth) `l-body-outset` (slightly extended from text width), `l-page` (pagewidth), and `l-screen` (window width). These can be set via the chunk option `layout`:
+
+````rmarkdown
+`r ''````{r layout = "l-body-outset", fig.width = 5, fig.height = 3}
+library(ggplot2)
+library(palmerpenguins)
+ggplot(data = penguins, 
+       aes(x = flipper_length_mm,
+           y = body_mass_g, 
+           color = species)) + 
+  geom_point()
+```
+````
+
+Notice that `fig.width` and `fig.height` still apply here and `layout` option will not affect the pdf rendering. Some interactive graphics set the figure sizing inside its function, for example, 
+  
+  - `plotly::ggplotly(p, width = ..., height = ...)`, and 
+  - `ggiraph::girafe(p, width_svg = ..., height_svg = ...)`. 
+  
+Sizing these figures should via the relevant arguments rather than the chunk options.
+
+## Alt text
+
+Alt text is read by a screen reader for people with visual disability and authors are encouraged to include alt text in their figures to make them more accessible in the R community. You only need to add alt text for the html figures and this can be done via the `fig.alt` chunk option. There are a few guidelines on how to write an alt text can be found at [here](https://www.vic.gov.au/alternative-text), [here](https://rjionline.org/news/alt-text-is-journalism-enhancing-your-reporting-with-accessibility/), and [here](https://medium.com/nightingale/writing-alt-text-for-data-visualization-2a218ef43f81). Remember an alt text is not supposed to tell the reader what can be learnt from the plot, but merely to describe what is on the plot. With a good alt text, people should be able to sketch a copy of the figure based on your description. 
+
+# Tables
+
+To use a simple markdown table, you need to add `preamble: \usepackage{longtable}` in the YAML for the tex file to render the pdf output. Another option is to use `knitr::kable()`, where you need to set up two chunks similar to the figures with different `format` arguments:
+
+````rmarkdown
+`r ''````{r penguins-interactive, eval = knitr::is_html_output()}
+knitr::kable(head(penguins), format = "html", caption = "Table caption")
+```
+````
+
+````rmarkdown
+`r ''````{r penguins-static, eval = knitr::is_latex_output()}
+knitr::kable(head(penguins), format = "latex", caption = "Table caption")
+```   
+````
+
+For inline reference, remember to use `tab:` instead of `fig:` in `\\@ref(tab:penguins-interactive)` and `\\@ref(tab:penguins-static)`. The same `layout` used for figure sizing is also applicable for tables.
+
+# Equations
+
+All equations need to have a label for consistency in both html and pdf outputs. For example:
+
+```
+\begin{equation} 
+STP_{\textit{parity loss}} = \Big | \ln \Big( \frac{STP_b}{STP_a} \Big)\Big|. 
+  (\#eq:parityLoss1)
+\end{equation} 
+```
+
+```
+\begin{equation} 
+STP_{\textit{parity loss}} = \sum_{i \in \{a, b, ...\}} \Big|\ln \Big(\frac{STP_i}{STP_a} \Big)\Big|.  
+  (\#eq:parityLoss2)
+\end{equation} 
+```
+
+Both equations will be numbered, and referenced with  `\@ref(eq:parityLoss2)`. So you can link to the equation in both html and pdf outputs.
+
+# Citations
+
+The citation style will be added during the building process and you can find the csl file [here](https://github.com/rjournal/rjtools/blob/main/inst/rjournal.csl). This style adopts a "capitalize-first" text case on title, which means it will capitalise the first world, including the one after the colon, and use lowercase for the rest. If you would like to preserve the text case of the title in the reference, wrap the word with curly braces. A common example of this is to preserve the lowercase R package name: 
+
+```
+@Manual{crosstalk,
+  title = {{crosstalk}: Inter-Widget Interactivity for HTML Widgets},
+  author = {Joe Cheng and Carson Sievert},
+  year = {2021},
+  note = {R package version 1.1.1},
+  url = {https://CRAN.R-project.org/package=crosstalk},
+}
+```
+
+R Journal requires a link for easy access to the reference and this can be done through either the `doi` or `url` field. If both fields are presented, `url` takes priority and we recommend providing the URL link as `url = {https://doi.org/.../...},`.
+
+
+# Styling
+
+Custom `css` is discouraged, because all articles should look similar. However, if you would like to make **small** changes in style for the appearance of your paper, even to get sizing of plots and tables cleaner in the html output, you can add a custom `css` and point to it in the YAML along with the `rjournal.css`. 
+
+# Converting from other Rmarkdown formats
+
+If you are already writing your articles using Rmarkdown, and have written your article using the `rticles::rjournal_article` style it is straightforward to make the switch to the `rjtools` styling. These are the steps that you need to follow:
+
+1. change output formats to `rjtools::rjournal_web_article` to switch to the new style, 
+2. remove any latex specific functionality, 
+3. change figure, table references to `\@ref()` and 
+4. add the `rjournal.csl` and `rjournal.css` template files to your folder, updating YAML to utilise them, and 
+5. set the reference to the `.bib` in the YAML.
+
+# Code
+
+Code chunks should provide the examples of usage of the package, if the paper is about an add-on package for R. Nice structure to the code is expected of R Journal papers. 
+
+Some good advice on code style can be found in
+
+- "R packages" chapter 7 by Hadley Wickham at https://r-pkgs.org/Code.html,
+- "rOpenSci Packages: Development, Maintenance, and Peer Review" at https://devguide.ropensci.org/building.html,
+- "What I look for in 'Software Papers'" by Carl Boettiger at https://www.carlboettiger.info/2013/06/13/what-I-look-for-in-software-papers.html
+- Use the "styler" package,
+- and avoiding the features warned against by Jenny Bryan at https://www.tidyverse.org/blog/2017/12/workflow-vs-script/
+    
+Inline code, e.g., the function `calc_stat` from the bilby package, should be delimited by a single back-tick. The old latex command `\code{}` shouldn't be used. 
+
+# Referring to packages
+
+The old latex commands `\CRANpkg{}` or `\BIOpkg{}` can be used for all CRAN and Bioconductor package references. This will create a link in the document that links to the CRAN or Bioconductor site for the package. Any other package should be treated like code, and delimited using single backticks.
+
+# Trouble-shooting
+
+If the pdf did not compile, check your latex installation, and update your version of `rjtools`. If this hasn't fixed the problem, there may be a latex error in your file. If the `.tex` file was created you can use latex on your system to typeset from this file, and it might help you track down the location of the error in the `.tex` file, and hence narrow down the location in the `.Rmd`.
+
+

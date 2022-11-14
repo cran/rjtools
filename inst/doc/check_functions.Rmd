@@ -1,0 +1,203 @@
+---
+title: "Check your Article Before Submission"
+author: Sherry Zhang
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Check}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE
+)
+path_to_article <- system.file("paper-with-errors", package = "rjtools")
+```
+
+```{r setup, echo = FALSE}
+library(rjtools)
+```
+
+The `rjtools` package has implemented some automated checks on style, spelling, and package availability, according to the R Journal format. For a comprehensive instruction on the journal format, we recommend authors to follow [instructions for Authors](https://journal.r-project.org/share/author-guide.pdf). 
+
+This vignette will demonstrate these checks with an example article, [paper-with-errors](https://github.com/rjournal/rjtools/tree/main/inst/paper-with-errors), where the argument `path = path_to_article` in the checks points to the directory of the .tex file. If you have created the article using `create_article()` with the default arguments, you can check with `path = here::here("rjarticle")`.
+
+# All checks in one function
+
+All the nine checks in `rjtools` can be completed with `initial_check_article()`, given a path to the article folder: 
+
+```{r eval = FALSE}
+initial_check_article(path = path_to_article)
+```
+
+
+
+The check result will be saved in an initial_check.log file under the same folder, as well as displayed in the console. This is how it looks like for the sample article:
+
+    Initial check results:
+    ERROR: Submission does not have consistently named tex, bib, and R files
+    SUCCESS: No problematic file found
+    SUCCESS: Possible motivation letter found
+    ERROR: The title is not in title case! Suggest title to be changed to:
+    ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics
+    SUCCESS: All sections are properly formatted in sentence case
+    SUCCESS: Abstract comes before the introduction section
+    NOTE: A potential list of spelling to check: tooltips, tooltip, alison, ggplot
+
+# Individual check functions
+
+The nine individual checks contained in `initial_check_article()` are: 
+
+  - `check_filenames()`
+  - `check_unnecessary_files()`
+  - `check_cover_letter()`
+  
+  - `check_title()`
+  - `check_section()`
+  - `check_spelling()`
+  - `check_proposed_pkg()`
+  - `check_packages_available()`
+
+and they can all be individually checked on the article.
+
+## Filenames
+
+```{r}
+check_filenames(path = path_to_article)
+```
+
+The .bib file is named `Rjreferences.bib` when created and we recommend setting a consistent name across the .bib, .tex, and .Rmd file.  A fix to this is to rename the `Rjreferences.bib` as the file name you used when create the article, in our case, `paper-with-errors`. 
+
+## Presence of unnecessary files
+
+```{r} 
+check_unnecessary_files(path = path_to_article) 
+```
+
+This function checks that the folder doesn't contain the `RJtemplate.tex` file, which is included the past R journal template. The [authors instruction](https://journal.r-project.org/share/author-guide.pdf) requires the authors to replace the content of this `RJtemplate.tex` file with article content and name with the lowercase concatenated author name, so it is essentially the `.tex` file automatically generated in the previous section. Our article don't have unnecessary files.
+
+## Presence of a motivating letter
+
+```{r} 
+check_cover_letter(path = path_to_article) 
+```
+
+Cover letter should be provided for article of type "add-on package" and saved at the same folder as the article. The function checks whether there is a file containing the word "motivation" in its name. Our article passes this check.
+
+## Article title is in title case
+
+```{r} 
+check_title(path = path_to_article) 
+```
+
+The article title needs to be in the title case and the check is not happy with our title here. Use `tools::toTitleCase()` to get the correct title case format:
+
+```{r}
+tools::toTitleCase("ToOoOlTiPs: An R package for Customizable Tooltips in Interactive Graphics")
+```
+
+Here we forget to capitalise "P" in the word "package" - better make this change before submission! Also if the title contains the package you're proposing, i.e `ToOoOlTiPs` in our article, use the `\pkg{.}` tag rather than `\CRANpkg{.}`.
+
+## Section title is in sentence case
+
+```{r} 
+check_section(path = path_to_article) 
+```
+
+Section titles need to be in the sentence case and we are all good here :)
+
+## Spelling
+
+```{r} 
+check_spelling(path = path_to_article) 
+```
+
+The spelling is checked from the abstract to bibliography section and only words with all lowercase letters are checked to avoid picking up on acronyms and names. The underlying checking is done through the `hunspell` package with US spelling by default. British spelling can be checked with argument `dic = "en_GB"`. The R journal welcomes both the U.S and British spelling, along with other national variation, as long as consistency is maintained. 
+
+Notice that the spelling check may pick up some domain specific vocabularies and authors may want to further confirm if these are true spelling mistakes. In our article, "tooltip" is a specialised vocabulary in interactive graphics, rather than a misspell, so we are free to go :)
+
+
+## Package is available on CRAN
+
+```{r eval = FALSE} 
+check_proposed_pkg() 
+```
+
+The package proposed in an article should already be available on CRAN before article submission. `check_proposed_pkg()` prompts the following in the console:
+
+  > What's the name of package being proposed in the article? If none, please enter 0. 
+
+and authors need to enter the exact package name, with proper capitalisation, for an availability check on CRAN download. For our article, enter `ToOoOlTiPs` in the console and the check would say
+
+  > NOTE: No CRAN activities detected for package ToOoOlTiPs
+  
+Not surprising that CRAN can't find our package since it is a hypothetical one!  
+
+## Package availability
+
+```{r eval = FALSE} 
+check_packages_available(path = path_to_article) 
+```
+
+All the packages mentioned with a `\CRANpkg{.}` or `\BIOpkg{.}` tag need to be available on CRAN or Bioconductor and `check_packages_available()` makes sure this is the case. For our article, we get 
+
+ > ! ERROR: 1 of 5 package(s) not available on CRAN: ToOoOlTiPs
+ 
+which is not really an issue here!
+
+
+# Checklist
+
+Editors, associate editors and reviewers will routinely check that papers adhere to these criteria:
+
+## General
+
+- Filenames are sensible such as author-names.XXX
+- Add-on package, and dependent packages, are on CRAN
+- Code runs easily and quickly
+- Examples can be reproduced with the R code provided
+- Code is appropriately indented 
+- Contact email address is provided for at least one author
+
+## Titles
+
+- Title need to be in title case
+- Section titles should be in sentence case
+- No special formatting can be used in the title
+
+## Abstract
+
+- Should not have math notation
+
+## Mathematics
+
+- Brackets need to be appropriately paired
+- Punctuation after equations needs to be consistent
+- Mathematical operators (e.g., log) should be roman, not italic
+
+## Code
+
+- Chunks of code in the text of the paper are concise and not overly long, is readable and nicely formatted. 
+- Code provided with the paper reproduces the results reported in the paper. 
+
+Advice on good coding style can be found in the `rjtools` article ["More details on the R Journal format"](https://rjournal.github.io/rjtools/articles/format-details.html).
+
+## Figures and tables
+
+- Figures are readable and clear. Good advice on figure can be found in 
+    - Healy (2018) Data Visualization: A practical introduction, available at https://socviz.co
+    - Wilke (2019) Fundamentals of Data Visualization, available at https://clauswilke.com/dataviz/
+- Tables are constructed effectively, with right-justified numbers, and don't exceed text margins. See [Schwabish (2020) Ten Guidelines for Better Tables](https://www.cambridge.org/core/journals/journal-of-benefit-cost-analysis/article/ten-guidelines-for-better-tables/74C6FD9FEB12038A52A95B9FBCA05A12) for advice on tables.
+- Captions have three parts: (1) what is the plot/table about, (2) specific details of plot/table, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
+
+## Citations
+
+- All references need to have a DOI where available
+- The default bibliography style needs to be used
+- Inline citations are appropriately "(author, year)" or "author (year)" 
+- Consistent capitalisation of reference titles
+- All R packages used in the work are appropriately cited, e.g., `ggplot` if this is used to create the figures
+

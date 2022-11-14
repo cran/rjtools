@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="H. Sherry Zhang and Di Cook" />
+
+
+<title>More details on the R Journal format</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">More details on the R Journal format</h1>
+<h4 class="author">H. Sherry Zhang and Di Cook</h4>
+
+
+
+<p>This article will work you the key parts of an R Journal template article as produced by <code>create_article()</code>. This assumes that you have already followed the “Create an R Journal Article” vignette, have created your initial article, and you have been able to knit both the <code>pdf</code> and <code>html</code> article. Here we explain the important parts you can see in the <code>Rmd</code> file that generates both output types, and how to modify them, and to debug if problems arise.</p>
+<div id="yaml-header" class="section level1">
+<h1>YAML header</h1>
+<p>This has these components:</p>
+<ul>
+<li><code>title: &quot;your article title&quot;</code></li>
+<li><code>abstract: &gt; ....</code></li>
+<li><code>author:</code> with separate lines for <code>name:</code>, <code>affiliation:</code>, <code>address:</code>, <code>url:</code>, <code>orcid:</code>, <code>email:</code> and a block for each author</li>
+<li>output format lines should look like</li>
+</ul>
+<pre><code>output:
+  rjtools::rjournal_web_article</code></pre>
+<ul>
+<li><code>bibliography: RJreferences.bib</code></li>
+</ul>
+</div>
+<div id="figures" class="section level1">
+<h1>Figures</h1>
+<p>If you would like to have an interactive plot in the html output, you will also need to provide a static plot for the pdf output. You will need two code blocks, one for each, with conditional <code>eval</code> options. The inline reference will also need to do a conditional <code>eval</code> to write the appropriate reference link depending on the html or pdf knitting.</p>
+<p>Of course, if only a static plot is to be rendered in both outputs, a single code chunk and a single inline reference will be sufficient.</p>
+<p>Note that the structure of a thorough caption is three components: (1) what is the plot/table about, (2) specific details of plot/table, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.</p>
+<div id="static" class="section level2">
+<h2>Static</h2>
+<p>For a static graph, use <code>\@ref(fig:penguins)</code> for in-text reference and your code chunk should look something like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins, fig.cap=&quot;This is the figure caption&quot;}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="in">penguins %&gt;% </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x = flipper_length_mm, y = body_mass_g, </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="in">             color = species)) + </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point()</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+</div>
+<div id="interactive" class="section level2">
+<h2>Interactive</h2>
+<p>For an interactive graphic, use separate code chunks to create a static plot for the pdf article and an interactive one for the html article:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins-static, eval=knitr::is_latex_output(), fig.cap=&quot;This is the figure caption.&quot;}</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="in">penguins %&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x = bill_depth_mm, y = bill_length_mm,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="in">             color = species)) +</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point()</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins-interactive, eval=knitr::is_html_output(), fig.cap=&quot;This is the figure caption.&quot;}</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="in">p1 &lt;- penguins %&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x = bill_depth_mm, y = bill_length_mm,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="in">             color = species)) +</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point()</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="in">plotly::ggplotly(p1)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<p>Notice here you need <code>eval=knitr::is_html_output()</code> and <code>eval=knitr::is_latex_output()</code> to make sure that the pdf output only evaluates the first chunk and the html output only evaluates the second.</p>
+<p>For in-text citation, you will something like this:</p>
+<pre><code>Figure `r knitr::asis_output(ifelse(knitr::is_html_output(), &#39;\\@ref(fig:penguins-interactive)&#39;, &#39;\\@ref(fig:penguins-static)&#39;))` shows ...</code></pre>
+<p>This line is quite complicated so let’s dissect its components: the if-else statement uses <code>knitr::is_html_output()</code> to decide if the output is an html or pdf output. For an html output, <code>\\@ref(fig:penguins-interactive)</code> will be used to reference the chunk of the interactive graphic. If the output is a pdf, <code>\\@ref(fig:penguins-static)</code> will reference the static figure. Finally, <code>knitr::asis_output()</code> makes sure that the reference string is parsed as it is, so no special treatment on <code>\@</code>.</p>
+</div>
+<div id="sizing" class="section level2">
+<h2>Sizing</h2>
+<p>For static plots, you can use <code>fig.width</code> and <code>fig.height</code> to adjust figure sizing for both pdf and html outputs.</p>
+<p>For html output, distill provides several larger than text-width layouts, i.e. <code>l-body</code> (textwidth) <code>l-body-outset</code> (slightly extended from text width), <code>l-page</code> (pagewidth), and <code>l-screen</code> (window width). These can be set via the chunk option <code>layout</code>:</p>
+<pre class="rmarkdown"><code>```{r layout = &quot;l-body-outset&quot;, fig.width = 5, fig.height = 3}
+library(ggplot2)
+library(palmerpenguins)
+ggplot(data = penguins, 
+       aes(x = flipper_length_mm,
+           y = body_mass_g, 
+           color = species)) + 
+  geom_point()
+```</code></pre>
+<p>Notice that <code>fig.width</code> and <code>fig.height</code> still apply here and <code>layout</code> option will not affect the pdf rendering. Some interactive graphics set the figure sizing inside its function, for example,</p>
+<ul>
+<li><code>plotly::ggplotly(p, width = ..., height = ...)</code>, and</li>
+<li><code>ggiraph::girafe(p, width_svg = ..., height_svg = ...)</code>.</li>
+</ul>
+<p>Sizing these figures should via the relevant arguments rather than the chunk options.</p>
+</div>
+<div id="alt-text" class="section level2">
+<h2>Alt text</h2>
+<p>Alt text is read by a screen reader for people with visual disability and authors are encouraged to include alt text in their figures to make them more accessible in the R community. You only need to add alt text for the html figures and this can be done via the <code>fig.alt</code> chunk option. There are a few guidelines on how to write an alt text can be found at <a href="https://www.vic.gov.au/alternative-text">here</a>, <a href="https://rjionline.org/news/alt-text-is-journalism-enhancing-your-reporting-with-accessibility/">here</a>, and <a href="https://medium.com/nightingale/writing-alt-text-for-data-visualization-2a218ef43f81">here</a>. Remember an alt text is not supposed to tell the reader what can be learnt from the plot, but merely to describe what is on the plot. With a good alt text, people should be able to sketch a copy of the figure based on your description.</p>
+</div>
+</div>
+<div id="tables" class="section level1">
+<h1>Tables</h1>
+<p>To use a simple markdown table, you need to add <code>preamble: \usepackage{longtable}</code> in the YAML for the tex file to render the pdf output. Another option is to use <code>knitr::kable()</code>, where you need to set up two chunks similar to the figures with different <code>format</code> arguments:</p>
+<pre class="rmarkdown"><code>```{r penguins-interactive, eval = knitr::is_html_output()}
+knitr::kable(head(penguins), format = &quot;html&quot;, caption = &quot;Table caption&quot;)
+```</code></pre>
+<pre class="rmarkdown"><code>```{r penguins-static, eval = knitr::is_latex_output()}
+knitr::kable(head(penguins), format = &quot;latex&quot;, caption = &quot;Table caption&quot;)
+```   </code></pre>
+<p>For inline reference, remember to use <code>tab:</code> instead of <code>fig:</code> in <code>\\@ref(tab:penguins-interactive)</code> and <code>\\@ref(tab:penguins-static)</code>. The same <code>layout</code> used for figure sizing is also applicable for tables.</p>
+</div>
+<div id="equations" class="section level1">
+<h1>Equations</h1>
+<p>All equations need to have a label for consistency in both html and pdf outputs. For example:</p>
+<pre><code>\begin{equation} 
+STP_{\textit{parity loss}} = \Big | \ln \Big( \frac{STP_b}{STP_a} \Big)\Big|. 
+  (\#eq:parityLoss1)
+\end{equation} </code></pre>
+<pre><code>\begin{equation} 
+STP_{\textit{parity loss}} = \sum_{i \in \{a, b, ...\}} \Big|\ln \Big(\frac{STP_i}{STP_a} \Big)\Big|.  
+  (\#eq:parityLoss2)
+\end{equation} </code></pre>
+<p>Both equations will be numbered, and referenced with <code>\@ref(eq:parityLoss2)</code>. So you can link to the equation in both html and pdf outputs.</p>
+</div>
+<div id="citations" class="section level1">
+<h1>Citations</h1>
+<p>The citation style will be added during the building process and you can find the csl file <a href="https://github.com/rjournal/rjtools/blob/main/inst/rjournal.csl">here</a>. This style adopts a “capitalize-first” text case on title, which means it will capitalise the first world, including the one after the colon, and use lowercase for the rest. If you would like to preserve the text case of the title in the reference, wrap the word with curly braces. A common example of this is to preserve the lowercase R package name:</p>
+<pre><code>@Manual{crosstalk,
+  title = {{crosstalk}: Inter-Widget Interactivity for HTML Widgets},
+  author = {Joe Cheng and Carson Sievert},
+  year = {2021},
+  note = {R package version 1.1.1},
+  url = {https://CRAN.R-project.org/package=crosstalk},
+}</code></pre>
+<p>R Journal requires a link for easy access to the reference and this can be done through either the <code>doi</code> or <code>url</code> field. If both fields are presented, <code>url</code> takes priority and we recommend providing the URL link as <code>url = {https://doi.org/.../...},</code>.</p>
+</div>
+<div id="styling" class="section level1">
+<h1>Styling</h1>
+<p>Custom <code>css</code> is discouraged, because all articles should look similar. However, if you would like to make <strong>small</strong> changes in style for the appearance of your paper, even to get sizing of plots and tables cleaner in the html output, you can add a custom <code>css</code> and point to it in the YAML along with the <code>rjournal.css</code>.</p>
+</div>
+<div id="converting-from-other-rmarkdown-formats" class="section level1">
+<h1>Converting from other Rmarkdown formats</h1>
+<p>If you are already writing your articles using Rmarkdown, and have written your article using the <code>rticles::rjournal_article</code> style it is straightforward to make the switch to the <code>rjtools</code> styling. These are the steps that you need to follow:</p>
+<ol style="list-style-type: decimal">
+<li>change output formats to <code>rjtools::rjournal_web_article</code> to switch to the new style,</li>
+<li>remove any latex specific functionality,</li>
+<li>change figure, table references to <code>\@ref()</code> and</li>
+<li>add the <code>rjournal.csl</code> and <code>rjournal.css</code> template files to your folder, updating YAML to utilise them, and</li>
+<li>set the reference to the <code>.bib</code> in the YAML.</li>
+</ol>
+</div>
+<div id="code" class="section level1">
+<h1>Code</h1>
+<p>Code chunks should provide the examples of usage of the package, if the paper is about an add-on package for R. Nice structure to the code is expected of R Journal papers.</p>
+<p>Some good advice on code style can be found in</p>
+<ul>
+<li>“R packages” chapter 7 by Hadley Wickham at <a href="https://r-pkgs.org/Code.html" class="uri">https://r-pkgs.org/Code.html</a>,</li>
+<li>“rOpenSci Packages: Development, Maintenance, and Peer Review” at <a href="https://devguide.ropensci.org/building.html" class="uri">https://devguide.ropensci.org/building.html</a>,</li>
+<li>“What I look for in ‘Software Papers’” by Carl Boettiger at <a href="https://www.carlboettiger.info/2013/06/13/what-I-look-for-in-software-papers.html" class="uri">https://www.carlboettiger.info/2013/06/13/what-I-look-for-in-software-papers.html</a></li>
+<li>Use the “styler” package,</li>
+<li>and avoiding the features warned against by Jenny Bryan at <a href="https://www.tidyverse.org/blog/2017/12/workflow-vs-script/" class="uri">https://www.tidyverse.org/blog/2017/12/workflow-vs-script/</a></li>
+</ul>
+<p>Inline code, e.g., the function <code>calc_stat</code> from the bilby package, should be delimited by a single back-tick. The old latex command <code>\code{}</code> shouldn’t be used.</p>
+</div>
+<div id="referring-to-packages" class="section level1">
+<h1>Referring to packages</h1>
+<p>The old latex commands <code>\CRANpkg{}</code> or <code>\BIOpkg{}</code> can be used for all CRAN and Bioconductor package references. This will create a link in the document that links to the CRAN or Bioconductor site for the package. Any other package should be treated like code, and delimited using single backticks.</p>
+</div>
+<div id="trouble-shooting" class="section level1">
+<h1>Trouble-shooting</h1>
+<p>If the pdf did not compile, check your latex installation, and update your version of <code>rjtools</code>. If this hasn’t fixed the problem, there may be a latex error in your file. If the <code>.tex</code> file was created you can use latex on your system to typeset from this file, and it might help you track down the location of the error in the <code>.tex</code> file, and hence narrow down the location in the <code>.Rmd</code>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
