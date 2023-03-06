@@ -1,6 +1,6 @@
 Package: rjtools
 Title: Preparing, Checking, and Submitting Articles to the 'R Journal'
-Version: 1.0.9
+Version: 1.0.10
 Authors@R: 
     c(person(given = "Mitchell",
              family = "O'Hara-Wild",
@@ -18,6 +18,9 @@ Authors@R:
              email = "dicook@monash.edu", 
              role = c("aut", "cre"), 
              comment = c(ORCID = "0000-0002-3813-7155")),
+      person(given="Simon", family="Urbanek",
+             email="simon.urbanek@R-project.org",
+             role="aut"),
       person(given = "Christophe", 
              family = "Dervieux", 
              email = "cderv@rstudio.com", 
@@ -30,22 +33,23 @@ Description: Create an 'R Journal' 'Rmarkdown' template article, that will
   <https://journal.r-project.org>. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.2.1
 Imports: distill, stringr, cranlogs, purrr, hunspell, fs, cli, glue,
         whisker, xfun, callr, rlang, yaml, yesno, utils, tinytex,
-        bookdown
+        bookdown, BiocManager
 Suggests: rmarkdown, knitr, pdftools, rstudioapi, testthat (>= 3.0.0)
 VignetteBuilder: knitr
 URL: https://github.com/rjournal/rjtools
 BugReports: https://github.com/rjournal/rjtools/issues
 Config/testthat/edition: 3
+RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2022-11-09 20:43:18 UTC; cookd
+Packaged: 2023-03-06 01:49:54 UTC; cookd
 Author: Mitchell O'Hara-Wild [aut],
   Stephanie Kobakian [aut],
   H. Sherry Zhang [aut],
   Di Cook [aut, cre] (<https://orcid.org/0000-0002-3813-7155>),
+  Simon Urbanek [aut],
   Christophe Dervieux [aut] (<https://orcid.org/0000-0003-4474-2498>)
 Maintainer: Di Cook <dicook@monash.edu>
 Repository: CRAN
-Date/Publication: 2022-11-14 11:00:02 UTC
+Date/Publication: 2023-03-06 09:20:06 UTC

@@ -50,7 +50,8 @@ For a static graph, use `\@ref(fig:penguins)` for in-text reference and your cod
 ````markdown
 `r ''````{r penguins, fig.cap="This is the figure caption"}
 penguins %>% 
-  ggplot(aes(x = flipper_length_mm, y = body_mass_g, 
+  ggplot(aes(x = flipper_length_mm, 
+             y = body_mass_g, 
              color = species)) + 
   geom_point()
 ```
@@ -63,7 +64,8 @@ For an interactive graphic, use separate code chunks to create a static plot for
 ````markdown
 `r ''````{r penguins-static, eval=knitr::is_latex_output(), fig.cap="This is the figure caption."}
 penguins %>%
-  ggplot(aes(x = bill_depth_mm, y = bill_length_mm,
+  ggplot(aes(x = bill_depth_mm, 
+             y = bill_length_mm,
              color = species)) +
   geom_point()
 ```
@@ -72,7 +74,8 @@ penguins %>%
 ````markdown
 `r ''````{r penguins-interactive, eval=knitr::is_html_output(), fig.cap="This is the figure caption."}
 p1 <- penguins %>%
-  ggplot(aes(x = bill_depth_mm, y = bill_length_mm,
+  ggplot(aes(x = bill_depth_mm, 
+             y = bill_length_mm,
              color = species)) +
   geom_point()
 plotly::ggplotly(p1)
@@ -83,9 +86,9 @@ Notice here you need `eval=knitr::is_html_output()` and `eval=knitr::is_latex_ou
 
 For in-text citation, you will something like this: 
 
-    Figure `r "\u0060r"` knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:penguins-interactive)', '\\@ref(fig:penguins-static)'))`r "\u0060"` shows ...
+    Figure \@ref(fig:`r "\u0060r"` ifelse(knitr::is_html_output(), 'penguins-interactive', 'penguins-static')`r "\u0060"` shows ...
     
-This line is quite complicated so let's dissect its components: the if-else statement uses `knitr::is_html_output()` to decide if the output is an html or pdf output. For an html output, `\\@ref(fig:penguins-interactive)` will be used to reference the chunk of the interactive graphic. If the output is a pdf, `\\@ref(fig:penguins-static)` will reference the static figure. Finally, `knitr::asis_output()` makes sure that the reference string is parsed as it is, so no special treatment on `\@`.
+This line is quite complicated so let's dissect its components: the `ifelse` statement uses `knitr::is_html_output()` to decide if the output is an html or pdf output, then completes the fugure reference to read either `\@ref(fig:penguins-interactive)`, to reference the chunk of the interactive graphic in HTML output, or `\@ref(fig:penguins-static)`, to reference the static figure for PDF output.
 
 ## Sizing
 
@@ -111,6 +114,29 @@ Notice that `fig.width` and `fig.height` still apply here and `layout` option wi
   - `ggiraph::girafe(p, width_svg = ..., height_svg = ...)`. 
   
 Sizing these figures should via the relevant arguments rather than the chunk options.
+
+## Captions with special formatting
+
+To include formatted text or references in the caption to a figure requires a different approach for HTML and PDF output formats.
+
+Here is an example of the necessary treatment:
+
+````markdown
+`r ''````{r demo-html, eval=knitr::is_html_output(), fig.cap = "Here is _italics_ and a reference to @RJournal in a caption.", echo = FALSE}
+knitr::include_graphics("figures/penguins.svg")
+```
+
+`r ''````{r demo-latex, eval=knitr::is_latex_output(), fig.cap = "(ref:demo-caption)", echo = FALSE}
+knitr::include_graphics("figures/penguins.pdf")
+````
+
+And then to finish the caption text for the latex chunk use:
+
+<code>&grave;r if (knitr::is_latex_output()) \"(ref:demo-caption) Here is \_italics\_ and a reference to @RJournal in a caption.\"`</code>
+
+and to refer to it in the text:
+
+    Fig. \@ref(fig:demo-`r ifelse(knitr::is_html_output(), "html", "latex")`) shows...
 
 ## Alt text
 
