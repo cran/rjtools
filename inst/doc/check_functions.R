@@ -39,3 +39,6 @@ check_spelling(path = path_to_article)
 ## ----eval = FALSE-------------------------------------------------------------
 #  check_packages_available(path = path_to_article)
 
+## ----eval=FALSE---------------------------------------------------------------
+#  cite_packages(out.dir = ".")
+

@@ -1,6 +1,6 @@
 Package: rjtools
 Title: Preparing, Checking, and Submitting Articles to the 'R Journal'
-Version: 1.0.10
+Version: 1.0.12
 Authors@R: 
     c(person(given = "Mitchell",
              family = "O'Hara-Wild",
@@ -33,17 +33,19 @@ Description: Create an 'R Journal' 'Rmarkdown' template article, that will
   <https://journal.r-project.org>. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: distill, stringr, cranlogs, purrr, hunspell, fs, cli, glue,
-        whisker, xfun, callr, rlang, yaml, yesno, utils, tinytex,
-        bookdown, BiocManager
-Suggests: rmarkdown, knitr, pdftools, rstudioapi, testthat (>= 3.0.0)
+RoxygenNote: 7.2.3
+Imports: distill, stringr, purrr, hunspell, fs, cli, glue, whisker,
+        xfun, callr, rlang, yaml, yesno, utils, tinytex, bookdown,
+        BiocManager, here, rmarkdown
+Suggests: knitr, pdftools, rstudioapi, testthat (>= 3.0.0)
 VignetteBuilder: knitr
 URL: https://github.com/rjournal/rjtools
 BugReports: https://github.com/rjournal/rjtools/issues
 Config/testthat/edition: 3
-RoxygenNote: 7.2.3
+Depends: R (>= 2.10)
+LazyData: true
 NeedsCompilation: no
-Packaged: 2023-03-06 01:49:54 UTC; cookd
+Packaged: 2023-10-07 00:34:16 UTC; cookd
 Author: Mitchell O'Hara-Wild [aut],
   Stephanie Kobakian [aut],
   H. Sherry Zhang [aut],
@@ -52,4 +54,4 @@ Author: Mitchell O'Hara-Wild [aut],
   Christophe Dervieux [aut] (<https://orcid.org/0000-0003-4474-2498>)
 Maintainer: Di Cook <dicook@monash.edu>
 Repository: CRAN
-Date/Publication: 2023-03-06 09:20:06 UTC
+Date/Publication: 2023-10-07 05:00:11 UTC

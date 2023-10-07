@@ -1,98 +1,56 @@
 #' Zip your directory for R Journal submission
 #'
-#' Zip up  files in the directory into a \code{paper.zip} for R Journal submission.
+#' \code{zip_paper} will first check the folder structure with
+#' [rjtools::check_folder_structure()] before zipping up everything in the
+#' main directory, excluding the `.Rproj` file, if exist.
 #'
-#'
-#' @param name the file name you used to create the article. See argument `file_name` in \code{create_article()}
-#' @param others other files or folders to zip, this might include supplementary \code{data/} folder,
-#' motivational letter for add-in packages, and \code{review/} folder for reviewer's comments and responses.
 #' @importFrom utils zip
+#' @importFrom yesno yesno2
 #' @importFrom yesno yesno
-#' @return a zip file with items for an R Journal submission
+#' @return a zip file for an R Journal submission
 #' @export
 #'
-zip_paper <- function(name, others = NULL){
-
-
-  # check whether the paper folder already exist
-  if (fs::dir_exists("paper") & !fs::file_exists("paper.zip")){
-  delete_paper <- yesno::yesno(
-  "Paper folder should be reserved for the zipped file and Rjtools is going to delete it.
-  Do you want to proceed?")
-  if (delete_paper) {
-    fs::dir_delete("paper")
-  } else{
-    cli::cli_abort("Terminated by the user.")
-  }
-
-}
+zip_paper <- function(){
 
   # remove the paper.zip and its associated paper/ if users have unzipped before
   # regenerate a new zip
   if (fs::file_exists("paper.zip")) {
-    cli::cli_inform("Removing created paper.zip and associated paper folder if detected.")
+    cli::cli_inform("Removing the {.file paper.zip} file detected.")
     fs::file_delete("paper.zip")
     if (fs::dir_exists("paper")) fs::dir_delete("paper")
-
   }
 
-  # should find .Rmd, .tex, .bib, .html from the dual rendering,
-  # and .r for the script if applicable
-  basic <- list.files(pattern = name, recursive = TRUE, full.names = TRUE)
-  html_files <- list.dirs(path = file.path(dirname(basic[1]), glue::glue("{name}_files")))
-
-  # should find RJwrapper.tex
-  rjwrapper <- list.files(pattern = "RJwrapper",
-                          recursive = TRUE, full.names = TRUE)
-
-  # should find style sheet
-  sty <- list.files(pattern = "Rjournal.sty",
-                          recursive = TRUE, full.names = TRUE)
-
-  motivation_letter <- list.files(pattern = "motivation-letter.md",
-                    recursive = TRUE, full.names = TRUE)
-
-  # process other files to zip
-  file_path <- others[fs::path_ext(others) != ""]
-  folder_path <- others[fs::path_ext(others) == ""]
-
-  # detect whether the claimed files and folders exist
-  test_folders <- purrr::map_lgl(folder_path, fs::dir_exists)
-  test_files <- purrr::map_lgl(file_path, fs::file_exists)
-  if (!all(test_folders) & length(file_path) != 0){
-    cli::cli_abort("Folder {.code {folders[!test_folder]}} {?is/are} not detected.")
-  }
-  if (!all(test_files) & length(file_path) != 0){
-    cli::cli_abort("File {.code {files[!test_files]}} {?is/are} not detected in the top level directory.")
+  cli::cli_h1("Check for folder structure")
+  res <- check_folder_structure(".")
+  cli::cli_h1("Prepare paper zip")
+  if (res != "SUCCESS"){
+    continue <- yesno::yesno2(
+    "ERRORs or WARNINGs generated from checking the folder structure.
+    Please fix before creating the paper zip. Would you like to continue?")
   }
 
-  other_paths <- unique(c(file_path, folder_path))
-
-  # cli::cli_inform("Copy and paste the following to the supplementary file in the submission form:
-  #                 ")
-
-  # collect everything and zip!
-  to_zip <- c(basic, html_files, rjwrapper, sty, motivation_letter, other_paths)
-  utils::zip(zipfile = "paper", to_zip)
-
+  if (continue | res == "SUCCESS"){
+    files <- list.files(recursive = TRUE, full.names = TRUE)
+    files <- files[!tools::file_ext(files) %in% "Rproj"]
+    utils::zip(zipfile = "paper", files)
+  }
 
 }
 
 #' Prepare pre-filled fields in the submission form
+#' \code{prep_submission} generate some answers based on the .tex file to fill
+#' the article submission form. You can save the answers if assigned it to an
+#' object.
 #'
-#' Auto-generate answers to some fields in the R Jorunal submission form
-#'
-#' @param name the file name you used to create the article. See argument `file_name` in \code{create_article()}
-#' @return auto-generated answers for some R Journal submission questions
+#' @return a list
 #' @export
-prepare_submission <- function(name){
+prep_submission <- function(){
 
-  tex <- readLines(list.files(pattern = xfun::with_ext(name, "tex"),
-                              recursive = TRUE, full.names = TRUE)) %>%
-    paste0(collapse = " ")
+  files <- tools::file_path_sans_ext(list.files())
+  tex_name <- table(files) |> which.max() |> names() |> xfun::with_ext("tex")
+  tex <- readLines(tex_name) |> paste0(collapse = " ")
 
-  raw <- tex %>%
-    stringr::str_extract("(?<=\\\\author\\{).*?(?=\\})")
+  raw <- tex %>% stringr::str_extract("(?<=\\\\author\\{).*?(?=\\})")
   authors_raw <- raw[!is.na(raw)] %>% stringr::str_remove("by ")
 
   if (!stringr::str_detect(authors_raw, ",")){
@@ -104,15 +62,16 @@ prepare_submission <- function(name){
 
   leading <- authors[1]
   others <- toString(authors[2:length(authors)]) %>% stringr::str_remove("and ")
+  title <- stringr::str_extract(tex,  "(?<=\\\\title\\{).*?(?=\\})")
+
+  res <- list(
+    `Your name` =  leading,
+    `Names of other authors, comma separated` = others,
+    `Article title` = title)
 
   cli::cli_alert_info("Your name: {.field {leading}}")
   cli::cli_alert_info("Names of other authors, comma separated: {.field {others}}")
-
-  # would be nice to implement keywords
-
-  title <- stringr::str_extract(tex,  "(?<=\\\\title\\{).*?(?=\\})")
   cli::cli_alert_info("Article title: {.field {title}}")
-
-  cli::cli_alert_info("Please list the paths to any other supplementary files inside the zip (R scripts, data, etc.). Each file path should be separated by commas. This list will be used to construct the supplementary zip file for your article if it is accepted for publication:
-                       {.field data/* ?}")
+  invisible(res)
 }
+

@@ -10,10 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta name="author" content="Sherry Zhang" />
+<meta name="author" content="H. Sherry Zhang and Di Cook" />
 
 
-<title>Check your Article Before Submission</title>
+<title>Check your article before submission</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -337,16 +337,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Check your Article Before Submission</h1>
-<h4 class="author">Sherry Zhang</h4>
+<h1 class="title toc-ignore">Check your article before submission</h1>
+<h4 class="author">H. Sherry Zhang and Di Cook</h4>
 
 
 
 <p>The <code>rjtools</code> package has implemented some automated
 checks on style, spelling, and package availability, according to the R
 Journal format. For a comprehensive instruction on the journal format,
-we recommend authors to follow <a href="https://journal.r-project.org/share/author-guide.pdf">instructions
-for Authors</a>.</p>
+we recommend authors to follow <a href="https://journal.r-project.org/submissions.html">instructions for
+Authors</a>.</p>
 <p>This vignette will demonstrate these checks with an example article,
 <a href="https://github.com/rjournal/rjtools/tree/main/inst/paper-with-errors">paper-with-errors</a>,
 where the argument <code>path = path_to_article</code> in the checks
@@ -358,7 +358,7 @@ you can check with <code>path = here::here(&quot;rjarticle&quot;)</code>.</p>
 <p>All the nine checks in <code>rjtools</code> can be completed with
 <code>initial_check_article()</code>, given a path to the article
 folder:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">initial_check_article</span>(<span class="at">path =</span> path_to_article)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">initial_check_article</span>(<span class="at">path =</span> path_to_article)</span></code></pre></div>
 <p>The check result will be saved in an initial_check.log file under the
 same folder, as well as displayed in the console. This is how it looks
 like for the sample article:</p>
@@ -389,7 +389,7 @@ NOTE: A potential list of spelling to check: tooltips, tooltip, alison, ggplot</
 <p>and they can all be individually checked on the article.</p>
 <div id="filenames" class="section level2">
 <h2>Filenames</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_filenames</span>(<span class="at">path =</span> path_to_article)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">check_filenames</span>(<span class="at">path =</span> path_to_article)</span></code></pre></div>
 <p>The .bib file is named <code>Rjreferences.bib</code> when created and
 we recommend setting a consistent name across the .bib, .tex, and .Rmd
 file. A fix to this is to rename the <code>Rjreferences.bib</code> as
@@ -398,7 +398,7 @@ the file name you used when create the article, in our case,
 </div>
 <div id="presence-of-unnecessary-files" class="section level2">
 <h2>Presence of unnecessary files</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_unnecessary_files</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">check_unnecessary_files</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
 <p>This function checks that the folder doesn’t contain the
 <code>RJtemplate.tex</code> file, which is included the past R journal
 template. The <a href="https://journal.r-project.org/share/author-guide.pdf">authors
@@ -410,7 +410,7 @@ Our article don’t have unnecessary files.</p>
 </div>
 <div id="presence-of-a-motivating-letter" class="section level2">
 <h2>Presence of a motivating letter</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_cover_letter</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">check_cover_letter</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
 <p>Cover letter should be provided for article of type “add-on package”
 and saved at the same folder as the article. The function checks whether
 there is a file containing the word “motivation” in its name. Our
@@ -418,12 +418,12 @@ article passes this check.</p>
 </div>
 <div id="article-title-is-in-title-case" class="section level2">
 <h2>Article title is in title case</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_title</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">check_title</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
 <p>The article title needs to be in the title case and the check is not
 happy with our title here. Use <code>tools::toTitleCase()</code> to get
 the correct title case format:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="st">&quot;ToOoOlTiPs: An R package for Customizable Tooltips in Interactive Graphics&quot;</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="st">&quot;ToOoOlTiPs: An R package for Customizable Tooltips in Interactive Graphics&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics&quot;</span></span></code></pre></div>
 <p>Here we forget to capitalise “P” in the word “package” - better make
 this change before submission! Also if the title contains the package
 you’re proposing, i.e <code>ToOoOlTiPs</code> in our article, use the
@@ -431,13 +431,13 @@ you’re proposing, i.e <code>ToOoOlTiPs</code> in our article, use the
 </div>
 <div id="section-title-is-in-sentence-case" class="section level2">
 <h2>Section title is in sentence case</h2>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_section</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">check_section</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
 <p>Section titles need to be in the sentence case and we are all good
 here :)</p>
 </div>
 <div id="spelling" class="section level2">
 <h2>Spelling</h2>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_spelling</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">check_spelling</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
 <p>The spelling is checked from the abstract to bibliography section and
 only words with all lowercase letters are checked to avoid picking up on
 acronyms and names. The underlying checking is done through the
@@ -453,7 +453,7 @@ in interactive graphics, rather than a misspell, so we are free to go
 </div>
 <div id="package-is-available-on-cran" class="section level2">
 <h2>Package is available on CRAN</h2>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_proposed_pkg</span>() </span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">check_proposed_pkg</span>() </span></code></pre></div>
 <p>The package proposed in an article should already be available on
 CRAN before article submission. <code>check_proposed_pkg()</code>
 prompts the following in the console:</p>
@@ -473,7 +473,7 @@ hypothetical one!</p>
 </div>
 <div id="package-availability" class="section level2">
 <h2>Package availability</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_packages_available</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">check_packages_available</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
 <p>All the packages mentioned with a <code>\CRANpkg{.}</code> or
 <code>\BIOpkg{.}</code> tag need to be available on CRAN or Bioconductor
 and <code>check_packages_available()</code> makes sure this is the case.
@@ -555,14 +555,44 @@ should learn.</li>
 <div id="citations" class="section level2">
 <h2>Citations</h2>
 <ul>
-<li>All references need to have a DOI where available</li>
-<li>The default bibliography style needs to be used</li>
-<li>Inline citations are appropriately “(author, year)” or “author
-(year)”</li>
-<li>Consistent capitalisation of reference titles</li>
-<li>All R packages used in the work are appropriately cited, e.g.,
-<code>ggplot</code> if this is used to create the figures</li>
+<li>All R packages used in the work are appropriately cited. For
+example, if you use <code>ggplot2</code> to make your plots, the
+citation for this package needs to be added to your paper. See more
+details below if you need help on how ot do this.</li>
+<li>All references need to have a DOI where available.</li>
+<li>The default bibliography style needs to be used.</li>
+<li>Use consistent capitalization for titles in the citations, which may
+require manual editing if extracting citation information from different
+services.</li>
 </ul>
+<p><strong>How to get the package citations</strong></p>
+<p>The preferred citation is provided by:</p>
+<pre><code>&gt; citation(&quot;ggplot2&quot;)
+
+To cite ggplot2 in publications, please use
+
+  H. Wickham. ggplot2: Elegant Graphics for Data Analysis.
+  Springer-Verlag New York, 2016.
+
+A BibTeX entry for LaTeX users is
+
+  @Book{,
+    author = {Hadley Wickham},
+    title = {ggplot2: Elegant Graphics for Data Analysis},
+    publisher = {Springer-Verlag New York},
+    year = {2016},
+    isbn = {978-3-319-24277-4},
+    url = {https://ggplot2.tidyverse.org},
+  }</code></pre>
+<p>To check if you’ve appropriately cited all the packages used in your
+code, the <a href="https://pakillo.github.io/grateful/"><code>grateful</code></a>
+package can help.</p>
+<p>In the project where you are writing your paper, use</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>to get a <code>.bib</code> file for all packages referenced. The
+entries can be added to the rest of your paper’s bib file.</p>
+<p>The <code>scan_packages</code> function can give you a list of the
+packages you are using.</p>
 </div>
 </div>
 

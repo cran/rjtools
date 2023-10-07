@@ -329,7 +329,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p>This article will work you the key parts of an R Journal template article as produced by <code>create_article()</code>. This assumes that you have already followed the “Create an R Journal Article” vignette, have created your initial article, and you have been able to knit both the <code>pdf</code> and <code>html</code> article. Here we explain the important parts you can see in the <code>Rmd</code> file that generates both output types, and how to modify them, and to debug if problems arise.</p>
+<p>This article will work you through the key parts of an R Journal template article as produced by <code>create_article()</code>. This assumes that you have already followed the “Create an R Journal Article” vignette, have created your initial article, and you have been able to knit both the <code>pdf</code> and <code>html</code> article. Here we explain the important parts you can see in the <code>Rmd</code> file that generates both output types, and how to modify them, and to debug if problems arise.</p>
 <div id="yaml-header" class="section level1">
 <h1>YAML header</h1>
 <p>This has these components:</p>
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li>output format lines should look like</li>
 </ul>
 <pre><code>output:
-  rjtools::rjournal_web_article</code></pre>
+  rjtools::rjournal_article</code></pre>
 <ul>
 <li><code>bibliography: RJreferences.bib</code></li>
 </ul>
@@ -353,32 +353,32 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="static" class="section level2">
 <h2>Static</h2>
 <p>For a static graph, use <code>\@ref(fig:penguins)</code> for in-text reference and your code chunk should look something like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins, fig.cap=&quot;This is the figure caption&quot;}</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="in">penguins %&gt;% </span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x = flipper_length_mm, </span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="in">             y = body_mass_g, </span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="in">             color = species)) + </span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point()</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="in">```{r penguins, fig.cap=&quot;This is the figure caption&quot;}</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="in">penguins %&gt;% </span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="in">  ggplot(aes(x = flipper_length_mm, </span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="in">             y = body_mass_g, </span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="in">             color = species)) + </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="in">  geom_point()</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
 </div>
 <div id="interactive" class="section level2">
 <h2>Interactive</h2>
 <p>For an interactive graphic, use separate code chunks to create a static plot for the pdf article and an interactive one for the html article:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins-static, eval=knitr::is_latex_output(), fig.cap=&quot;This is the figure caption.&quot;}</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="in">penguins %&gt;%</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x = bill_depth_mm, </span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="in">             y = bill_length_mm,</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="in">             color = species)) +</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point()</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r penguins-interactive, eval=knitr::is_html_output(), fig.cap=&quot;This is the figure caption.&quot;}</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="in">p1 &lt;- penguins %&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x = bill_depth_mm, </span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="in">             y = bill_length_mm,</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="in">             color = species)) +</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point()</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="in">plotly::ggplotly(p1)</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="in">```{r penguins-static, eval=knitr::is_latex_output(), fig.cap=&quot;This is the figure caption.&quot;}</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="in">penguins %&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="in">  ggplot(aes(x = bill_depth_mm, </span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="in">             y = bill_length_mm,</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="in">             color = species)) +</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="in">  geom_point()</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="in">```{r penguins-interactive, eval=knitr::is_html_output(), fig.cap=&quot;This is the figure caption.&quot;}</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="in">p1 &lt;- penguins %&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="in">  ggplot(aes(x = bill_depth_mm, </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="in">             y = bill_length_mm,</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="in">             color = species)) +</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="in">  geom_point()</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="in">plotly::ggplotly(p1)</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
 <p>Notice here you need <code>eval=knitr::is_html_output()</code> and <code>eval=knitr::is_latex_output()</code> to make sure that the pdf output only evaluates the first chunk and the html output only evaluates the second.</p>
 <p>For in-text citation, you will something like this:</p>
 <pre><code>Figure \@ref(fig:`r ifelse(knitr::is_html_output(), &#39;penguins-interactive&#39;, &#39;penguins-static&#39;)` shows ...</code></pre>
@@ -408,12 +408,12 @@ ggplot(data = penguins,
 <h2>Captions with special formatting</h2>
 <p>To include formatted text or references in the caption to a figure requires a different approach for HTML and PDF output formats.</p>
 <p>Here is an example of the necessary treatment:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r demo-html, eval=knitr::is_html_output(), fig.cap = &quot;Here is _italics_ and a reference to @RJournal in a caption.&quot;, echo = FALSE}</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::include_graphics(&quot;figures/penguins.svg&quot;)</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="in">```{r demo-latex, eval=knitr::is_latex_output(), fig.cap = &quot;(ref:demo-caption)&quot;, echo = FALSE}</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::include_graphics(&quot;figures/penguins.pdf&quot;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="in">```{r demo-html, eval=knitr::is_html_output(), fig.cap = &quot;Here is _italics_ and a reference to @RJournal in a caption.&quot;, echo = FALSE}</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="in">knitr::include_graphics(&quot;figures/penguins.svg&quot;)</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="in">```{r demo-latex, eval=knitr::is_latex_output(), fig.cap = &quot;(ref:demo-caption)&quot;, echo = FALSE}</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="in">knitr::include_graphics(&quot;figures/penguins.pdf&quot;)</span></span></code></pre></div>
 <p>And then to finish the caption text for the latex chunk use:</p>
 <p><code>`r if (knitr::is_latex_output()) &quot;(ref:demo-caption) Here is _italics_ and a reference to <span class="citation">@RJournal</span> in a caption.&quot;`</code></p>
 <p>and to refer to it in the text:</p>
@@ -468,7 +468,7 @@ STP_{\textit{parity loss}} = \sum_{i \in \{a, b, ...\}} \Big|\ln \Big(\frac{STP_
 <h1>Converting from other Rmarkdown formats</h1>
 <p>If you are already writing your articles using Rmarkdown, and have written your article using the <code>rticles::rjournal_article</code> style it is straightforward to make the switch to the <code>rjtools</code> styling. These are the steps that you need to follow:</p>
 <ol style="list-style-type: decimal">
-<li>change output formats to <code>rjtools::rjournal_web_article</code> to switch to the new style,</li>
+<li>change output formats to <code>rjtools::rjournal_article</code> to switch to the new style,</li>
 <li>remove any latex specific functionality,</li>
 <li>change figure, table references to <code>\@ref()</code> and</li>
 <li>add the <code>rjournal.csl</code> and <code>rjournal.css</code> template files to your folder, updating YAML to utilise them, and</li>
@@ -478,7 +478,7 @@ STP_{\textit{parity loss}} = \sum_{i \in \{a, b, ...\}} \Big|\ln \Big(\frac{STP_
 <div id="code" class="section level1">
 <h1>Code</h1>
 <p>Code chunks should provide the examples of usage of the package, if the paper is about an add-on package for R. Nice structure to the code is expected of R Journal papers.</p>
-<p>Some good advice on code style can be found in</p>
+<p>Some good advice on code style can be found in:</p>
 <ul>
 <li>“R packages” chapter 7 by Hadley Wickham at <a href="https://r-pkgs.org/Code.html" class="uri">https://r-pkgs.org/Code.html</a>,</li>
 <li>“rOpenSci Packages: Development, Maintenance, and Peer Review” at <a href="https://devguide.ropensci.org/building.html" class="uri">https://devguide.ropensci.org/building.html</a>,</li>
@@ -486,11 +486,21 @@ STP_{\textit{parity loss}} = \sum_{i \in \{a, b, ...\}} \Big|\ln \Big(\frac{STP_
 <li>Use the “styler” package,</li>
 <li>and avoiding the features warned against by Jenny Bryan at <a href="https://www.tidyverse.org/blog/2017/12/workflow-vs-script/" class="uri">https://www.tidyverse.org/blog/2017/12/workflow-vs-script/</a></li>
 </ul>
-<p>Inline code, e.g., the function <code>calc_stat</code> from the bilby package, should be delimited by a single back-tick. The old latex command <code>\code{}</code> shouldn’t be used.</p>
+<p>Inline code, e.g., the function <code>calc_stat</code> from the bilby package, should be delimited by a single back-tick. The old latex command <code>\code{}</code> <strong>should not</strong> be used.</p>
+<p>Your code should run reasonably fast. It is better to have a small example to illustrate your work.</p>
 </div>
 <div id="referring-to-packages" class="section level1">
 <h1>Referring to packages</h1>
 <p>The old latex commands <code>\CRANpkg{}</code> or <code>\BIOpkg{}</code> can be used for all CRAN and Bioconductor package references. This will create a link in the document that links to the CRAN or Bioconductor site for the package. Any other package should be treated like code, and delimited using single backticks.</p>
+</div>
+<div id="handling-data" class="section level1">
+<h1>Handling data</h1>
+<p>Examples for your paper should be computed relatively quickly, which often means that the data files need to be relatively small (less than 5Mb).</p>
+<p>If you have a large file that you believe should be used for the paper, you could store the file elsewhere, on your own GitHub repo, or on a data file share service like <a href="https://help.figshare.com/article/guide-to-sharing-data-on-figshare-plus">Figshare</a>, and add download and handling code to your paper.</p>
+</div>
+<div id="handling-slow-computations" class="section level1">
+<h1>Handling slow computations</h1>
+<p>The editorial team needs to re-build your article to check that results are reproducible, and the editor will need to re-build your article when it is organised into an issue. Try to ensure that your code runs quickly. If you need to have a code chunk that takes several minutes or more to run, consider turning the chunk off, providing an intermediate state that is loaded into the next chunk. Generally, we advise against using the <code>cache</code> feature of Rmarkdown because when multiple articles are built in the issue construction it might render your article inadequately.</p>
 </div>
 <div id="trouble-shooting" class="section level1">
 <h1>Trouble-shooting</h1>

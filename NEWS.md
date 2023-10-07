@@ -1,3 +1,23 @@
+# rjtools 1.0.12
+
+* Updates for accessibility based on updates in distill package.
+* File structure for template article is now cleaner, with data, figures, scripts, motivation-letter, folders. 
+* Added `rjournal_article()` as a preferred alias to `rjournal_web_article()`
+  since this output format generally produces both HTML and PDF outputs.
+* This is reflected in the change in the YAML header to be `rjtools::rjournal_article`. This generates both html and pdf. `rjtools::rjournal_web_article`, which will now only generate the html. `rjtools::rjournal_pdf_article` now only generates the pdf.
+* Check functions updated, including DOIs in references, title case in bib file, existence of csl file
+* Reference to new web site in the documentation.
+* New function to assist authors prepare for a release.
+* Style to better adhere to accessibility standards.
+* Remove link to twitter/x.
+* Handling of longtable.
+* Utilise system sty file, not author supplied.
+
+# rjtools 1.0.11
+
+* removed return value, and set create_article to write a message
+* set a default name for the paper
+
 # rjtools 1.0.10
 
 * available_packages() is used in check_packages_available() instead of cranlogs::cran_downloads()

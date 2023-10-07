@@ -4,6 +4,8 @@
 #'     file (Ideally, this directory should contain .bib, .Rmd, and
 #'     .tex with author names and two RJwrapper files:  RJwrapper.pdf
 #'     and RJwrapper.tex)
+#' @param file string, the file name if multiple files are detected
+#'     under the \code{path} argument
 #' @param dic string, the dictionary used for spelling check. See
 #'     \code{dict} argument in [hunspell::hunspell()]
 #' @param pkg string, optional. The name of the proposed package (if
@@ -27,10 +29,19 @@
 #'
 #' * \code{check_title()}: article title is in title case
 #' * \code{check_section()}: section sections are in sentence case
-#' * \code{check_abstract_before_intro()}: abstract comes before the introduction section
+#' * \code{check_abstract()}: abstract should be plain text without package
+#' markups (CRANpkg, BIOpkg, pkg), math notations($...$), citations, and other
+#' formattings (highlight, italic, etc)
 #' * \code{check_spelling()}: potential spelling mistakes
 #' * \code{check_proposed_pkg()}: package proposed in the paper is on CRAN
-#' * \code{check_packages_available()}: packages mentioned in the article are available on CRAN
+#' * \code{check_pkg_label()}: packages marked up with \pkg{} are not available
+#' on CRAN or BioConductor
+#' * \code{check_packages_available()}: packages mentioned in the article are
+#' available on CRAN
+#' * \code{check_bib_doi}: whether bib entries have DOI or URL included, uncless
+#' can't sourced online
+#' * \code{check_csl}: no additional csl file should be used
+#' consistent, either in sentence (preferred) or title case
 #'
 #' See \code{vignette("create_article", package = "rjtools")} for how to use the check functions
 #' @rdname checks
@@ -82,16 +93,21 @@ Please specify the file directory that contains the article {.field .tex} file."
     ## Folder structure checks:
     check_filenames(path)
     check_structure(path)
+    check_folder_structure(path)
     check_unnecessary_files(path)
     check_cover_letter(path)
 
     ## Tex file checks:
     check_title(path, ...)
     check_section(path)
-    check_abstract_before_intro(path)
+    check_abstract(path)
     check_spelling(path, dic, ...)
     check_proposed_pkg(pkg, ask)
+    check_pkg_label(path)
     check_packages_available(path)
+    check_bib_doi(path)
+    check_csl(path)
+    check_date(path, file)
 
     ## Show a numeric summary of successes, errors and notes
     journal_summary(file=logfile)
@@ -148,6 +164,58 @@ check_structure <- function(path) {
 
 #' @rdname checks
 #' @export
+check_folder_structure <- function(path){
+  files <- list.files(path)
+  file_exts <- tools::file_ext(files)
+
+  concat <- function(x)  paste0(x, collapse = ", ")
+
+  img_exts <- c("jpeg", "jpg", "png", "gif", "tiff", "svg")
+  img_files <- files[file_exts %in% img_exts] |> concat()
+
+  data_exts <- c("csv", "rda")
+  data_files <- files[file_exts %in% data_exts] |> concat()
+
+  r_files <- files[file_exts == "R"]
+  log_aux <- files[file_exts %in% c("log", "aux", "out")] |> concat()
+  file_txt <- tools::file_path_sans_ext(files)
+  motivation <- files[grepl("motivation", file_txt)] |> concat()
+
+  valid_exts <- c("Rproj", ".sty", "bib", "Rmd", "html", "R", "tex", "pdf", "")
+  exts_checked <- c(img_exts, data_exts, "R", "log", "aux")
+  non_standard <- files[!file_exts %in% c(valid_exts, exts_checked)]
+  non_standard <- non_standard[!grepl("motivation", non_standard)] |> concat()
+
+  if (length(img_files) != 0){
+    log_error("Image(s) detected in the main directory: {img_files}.
+              They should be placed in the figures/ folder.")
+  } else if (length(data_files) != 0){
+    log_error("Data file(s) detected in the main directory: {data_files}.
+              They should be placed in the data/ folder.")
+  } else if (length(r_files) > 1){
+    r_files <- concat(r_files)
+    log_error(
+    "Multiple R files detected: {r_files}.
+    Should they be organised in the scripts/ folder?
+    The master R file generated from rendering should still be in the main directory.")
+  } else if (length(log_aux) != 0){
+    log_error("Auxiliary log and aux files detected: {log_aux}.
+              They should be removed.")
+  } else if (length(motivation) != 0){
+    log_error("Motivation letter related files detected: {motivation}.
+              They should be placed in the motivation-letter/ folder.")
+  } else if (length(non_standard) != 0){
+    log_warning(
+      "Other non-standard file detected: {non_standard}.
+      Should they be removed? ")
+  } else{
+    log_success("The paper is in good folder structure.")
+  }
+
+}
+
+#' @rdname checks
+#' @export
 check_unnecessary_files <- function(path) {
     submission_files <- list.files(path)
     unnecessary_files <- "RJtemplate.tex"
@@ -167,7 +235,7 @@ check_cover_letter <- function(path){
     if (!length(mot <- grep("motivation", remaining_files))) {
         log_note("Motivation letter is not detected, if applicable")
     } else {
-        log_success("Possible motivation letter found: {remaining_files[mot]}")
+        log_success("Possible motivation letter found: {paste0(remaining_files[mot], collapse = ', ')}")
     }
 }
 
@@ -176,36 +244,39 @@ check_cover_letter <- function(path){
 ##############################################
 # Tex file checks:
 
-#' @param ignore The words to ignore in title check, use c(pkg, pkg, ...) for multiple words
-#' @importFrom stringr str_extract
+#' @param ignore The words to ignore in title check, e.g. package name (data.table, toOoOlTiPs)
 #' @importFrom tools toTitleCase
 #' @rdname checks
 #' @export
 check_title <- function(path, ignore = ""){
 
   tex <- extract_tex(path)
-  str <- sub(".*((?<=\\\\title\\{)(.*)(?=\\}\\s\\\\author\\{)).*","\\1", tex, perl = TRUE)
+  str <- sub(".*\\\\title\\{([^}]*)\\}.*","\\1", tex, perl = TRUE)
   res <- check_str(str, ignore)
 
+  has_special_format <- grepl(
+    "\\pkg\\{.*\\}|\\CRANpkg\\{.*\\}|\\BIOpkg\\{.*\\}", str)
+  if (has_special_format){
+    log_error("Article title should not contain any special format, such as the
+              \\pkg, \\CRANpkg, \\BIOpkg markups used for package names.")
+  }
+
   if (!res$result){
-    correct <- res$suggest
-    quote_fixed <- gsub('\"', "", correct, fixed = TRUE)
-    log_error("The title is not in title case! Suggest title to be changed to:
-              {quote_fixed}")
+    log_error("Article title not in title case! Suggest title: {res$suggest}.")
   } else{
-    log_success("The article title is properly formatted in title case.")
+    log_success("Article title formatted in title case.")
   }
 
 }
 
+
 check_str <- function(str, ignore = ""){
-  # if \\pkg{} is used to mark up pkg name, they are removed form title check
-  str <- gsub("\\\\pkg\\{[a-z.A-Z0-9]*\\}", "", str)
   ignore <- paste0(ignore, collapse = "", sep = "|")
   str <- gsub(ignore, "", str) # remove ignored words
+  str_in_title_case <- tools::toTitleCase(str)
+  pass <- str_in_title_case == str
 
-  list(result = tools::toTitleCase(str) == str,
-       suggest = tools::toTitleCase(str))
+  list(result = pass, suggest = if (!pass) str_in_title_case else NULL)
 }
 
 
@@ -231,48 +302,67 @@ check_section <- function(path){
     str
   }
 
-  remove_uppercase <- function(str){
-    words <- stringr::str_split(str, " ", simplify = TRUE)
-    out <- paste(c(words[1], words[stringr::str_to_lower(words) == words]),
-                 collapse = " ")
-    out
-  }
-
-  str <- lapply(str, clean_section_title) %>% lapply(remove_uppercase)
-
-  if (!all(stringr::str_to_sentence(str) == str)){
-    problem_one <- str[!stringr::str_to_sentence(str) == str]
-    log_error("Section {problem_one} is not in sentence case!")
+  str <- lapply(str, clean_section_title)
+  # remove the capital R
+  dt <- do.call(rbind, lapply(str_remove(str, " R"), check_sentence_case))
+  res <- paste0(str[!dt[["in_sentence_case"]]], collapse = ", ")
+  if (nchar(res) != 0){
+    log_error("Section {res} is not in sentence case!")
   } else{
-    log_success("All sections are properly formatted in sentence case")
+    log_success("Section titles formatted in sentence case.")
   }
 
 }
 
+check_sentence_case <- function(str){
+  remove_uppercase <- function(str){
+    words <- stringr::str_split(str, " ", simplify = TRUE)
+    out <- paste(words[(!stringr::str_to_upper(words) == words )| nchar(words) == 1 ],
+                 collapse = " ")
+    out
+  }
 
-#' @importFrom stringr str_locate
+  raw <- str
+  str <- remove_uppercase(str)
+  str <- strsplit(str, ": ")[[1]]
+
+  data.frame(
+    origin = raw,
+    in_sentence_case = all(stringr::str_to_sentence(str) == str)
+  )
+}
+
+
+
 #' @rdname checks
 #' @export
-check_abstract_before_intro <- function(path){
-
+check_abstract <- function(path){
   tex <- extract_tex_vec(path)
+  idx_abs <- which(grepl("\\\\abstract\\{", tex))
+  idx_intro <- which(grepl("\\\\section\\{Introduction\\}", tex))
+  str <- paste0(tex[(idx_abs+1):(idx_intro-2)], collapse = " ")
 
-  abstract <- stringr::str_locate(tex, "abstract")[,"start"]
-  abstract <- abstract[!is.na(abstract)][1]
-  intro <- stringr::str_locate(tex, "Introduction")[,"start"]
-  intro <- intro[!is.na(intro)][1]
+  has_special_format <- check_abstract_str(str)
 
-  if(is.na(abstract)){
-    log_error(paste0("Unable to find abstract! Please check for the \abstract ",
-                     "tag in your Tex document"))
-  } else if(is.na(intro)){
-    log_error(paste0("Unable to find introduction! Please check for an intro ",
-                     "in your Tex document"))
-  } else if (abstract > intro){
-    log_error("Abstract doesn't come before the introduction section")
-  } else {
-    log_success("Abstract comes before the introduction section")
+  if (has_special_format){
+    log_error("Abstract should be plain text without package markups,
+    mathmatic notations, citation, or other formattings."
+    )
+  } else{
+    log_success("Abstract formatted in plain text.")
   }
+}
+
+check_abstract_str <- function(str){
+  #pkgs
+  pkgs <- grepl("\\pkg\\{.*\\}|\\CRANpkg\\{.*\\}|\\BIOpkg\\{.*\\}", str)
+
+  # citation
+  citations <- grepl("\\cite\\{.*\\}|\\citep|\\citet", str)
+
+  others <-  grepl("texttt|\\$.*\\$|emph|proglang", str)
+
+  any(c(pkgs, citations, others))
 }
 
 #' @importFrom stringr str_extract str_replace_all
@@ -316,8 +406,6 @@ check_spelling <- function(path, dic = "en_US", ...){
 
 }
 
-
-#' @importFrom cranlogs cran_downloads
 #' @rdname checks
 #' @export
 check_proposed_pkg <- function(pkg, ask=interactive()) {
@@ -325,7 +413,7 @@ check_proposed_pkg <- function(pkg, ask=interactive()) {
         if (!ask)
             return(log_note("No proposed package supplied."))
         ## This is a really terrible hack ...
-        pkg <- readline(prompt = "What's the name of package being proposed in the article? Press Enter if none. ")
+        pkg <- readline(prompt = "What's the name of the package being proposed in the article? Press Enter if none. ")
     }
 
     if (length(pkg) == 1 && nzchar(pkg)) {
@@ -338,6 +426,31 @@ check_proposed_pkg <- function(pkg, ask=interactive()) {
         log_success("No proposed package for the article, nothing to check.")
 }
 
+#' @rdname checks
+#' @export
+check_pkg_label <- function(path){
+  tex <- extract_tex(path)
+  with_pkg_markup <- unique(greg1("\\\\pkg\\{(.*?)\\}", tex))
+  cran_idx <- which(with_pkg_markup %in% allCRANpkgs())
+  cran_str <- paste0(with_pkg_markup[cran_idx],collapse = ", ")
+  bio_idx <- which(with_pkg_markup %in% allBioCpkgs())
+  bio_str <- paste0(with_pkg_markup[bio_idx],collapse = ", ")
+  if (length(cran_idx) != 0){
+    log_error("Package(s) available on CRAN: {cran_str}.
+              please use \\CRANpkg rather than \\pkg.")
+  } else if (length(bio_idx) != 0){
+    log_error("Package(s) available on CRAN: {bio_str}.
+            please use \\BIOpkg rather than \\pkg.")
+  } else{
+    log_success("No error with the use of \\pkg markup.")
+  }
+
+
+}
+
+## get first group from all matches in all strings
+greg1 <- function(pattern, strings)
+  do.call(rbind, stringr::str_match_all(strings, pattern))[,2]
 
 #' @param ignore The words to ignore in title check, use c(pkg, pkg, ...) for multiple quoted words
 #' @importFrom stringr str_match_all
@@ -349,10 +462,6 @@ check_packages_available <- function(path, ignore) {
     if (missing(ignore)) ignore <- character()
     tex <- extract_tex(path)
 
-    ## get first group from all matches in all strings
-    greg1 <- function(pattern, strings)
-        do.call(rbind, stringr::str_match_all(strings, pattern))[,2]
-
     ## List of CRAN and BioC pkgs used in the text
     CRANpkgs <- unique(greg1("\\\\CRANpkg\\{(.*?)\\}", tex))
     BioCpkgs <- unique(greg1("\\\\BIOpkg\\{(.*?)\\}", tex))
@@ -361,14 +470,10 @@ check_packages_available <- function(path, ignore) {
     CRANpkgs <- CRANpkgs[!(CRANpkgs %in% ignore)]
     BioCpkgs <- BioCpkgs[!(BioCpkgs %in% ignore)]
 
-    ## Get CRAN list
-    allCRANpkgs <- available.packages(type='source')[,1]
-
+    allCRANpkgs <- allCRANpkgs()
     ## only bother with BioC if it is mentioned
     allBioCpkgs <- if (length(BioCpkgs)) {
-        ## Get BioC list
-        BioCver <- BiocManager::version()
-        allBioCpkgs <- available.packages(repos = paste0("https://bioconductor.org/packages/", BioCver, "/bioc"), type='source')[,1]
+        allBioCpkgs()
     } else character()
 
     res1 <- if (!all(CRANpkgs %in% allCRANpkgs)) {
@@ -386,7 +491,7 @@ check_packages_available <- function(path, ignore) {
 
         log_error("{amount_missing} of {amount_pkgs} package(s) not available on Bioconductor: {paste(missing, collapse = ', ')}")
     } else {
-        log_success("All CRAN & Bioconductor packages mentioned are available")
+        log_success("All packages marked-up with \\CRANpkg or \\BIOpkg are available on CRAN or Bioconductor.")
     }
 
     ## Check that all packages with a \pkg reference also have a \CRANpkg or \BIOpkg mention
@@ -406,6 +511,94 @@ check_packages_available <- function(path, ignore) {
     }
     ## the last note is not passed as result but will be recorded in the journal
     res1
+}
+
+## Get CRAN list
+allCRANpkgs <- function() {tools::CRAN_package_db()$Package}
+allBioCpkgs <- function(){
+  ## Get BioC list
+  BioCver <- BiocManager::version()
+  available.packages(repos = paste0("https://bioconductor.org/packages/", BioCver, "/bioc"), type='source')[,1]
+}
+
+read_bib <- function(path){
+  files <- list.files(here::here(path), full.names = TRUE)
+  bib_file <- files[tools::file_ext(files) == "bib"]
+  a <- rmarkdown::pandoc_citeproc_convert(bib_file, type = "yaml")
+  bib_list <- yaml::yaml.load(a)$reference
+  return(bib_list)
+}
+
+#' @rdname checks
+#' @export
+check_bib_doi <- function(path){
+  bib_list <- read_bib(path)
+  id <- c()
+  bib_tbl <- lapply(bib_list, function(x) {
+    if (is.null(x$doi) && is.null(x$url)){
+      id <- c(id, x$id)
+    }
+  })
+
+  res <- paste0(do.call(rbind,bib_tbl), collapse = ", ")
+
+  if (nchar(res) == 0){
+    log_success("All the references contain DOI or URL")
+  } else{
+    log_warning("Citation should include a link to the reference, preferably a
+    DOI, unless online resources cannot be found.
+    References without DOI or URL: {res}.")
+  }
+
+}
+
+#' @rdname checks
+#' @export
+check_csl <- function(path){
+  files <- list.files(here::here(path), full.names = TRUE)
+  rmd_file <- files[tools::file_ext(files) == "Rmd"]
+
+  if (length(rmd_file) == 0) {
+    csl_file <- files[tools::file_ext(files) == "csl"]
+    if (length(csl_file) != 0) {res <- "has_csl"} else {res <- "good"}
+  } else{
+    if (length(rmd_file) > 1){
+      html_basename <- basename(tools::file_path_sans_ext(
+        files[tools::file_ext(files) == "html"]
+      ))
+      rmd_file <- rmd_file[grepl(html_basename, rmd_file)]
+    }
+
+    yaml <- rmarkdown::yaml_front_matter(rmd_file)
+    yaml_nms <- names(yaml)
+    if ("csl" %in% yaml_nms){ res <- "has_csl"} else {res <- "good"}
+
+  }
+
+  if (res == "has_csl"){
+    log_error("Found CSL file {yaml[['csl']]} in the repository.
+              No CSL file should be used in R Journal article.")
+  } else{
+    log_success("No customised csl file used. Good!")
+  }
+
+}
+
+#' @rdname checks
+#' @export
+check_date <- function(path, file){
+  files <- list.files(path)
+  rmd_file <- files[tools::file_ext(files) == "Rmd"]
+  rmd_file <- eliminate_mulitple(rmd_file, file)
+  yaml <- rmarkdown::yaml_front_matter(rmd_file)
+  if (as.Date(yaml[["date"]], format = "%Y-%m-%d") != Sys.Date()){
+    log_error(
+      "Please use a fixed article's date in the format of `%Y-%m-%d`,
+      e.g. 2023-10-05. The date should match the date when the article
+      is submitted. Dynamic date can cause issues on issue rendering.")
+  } else{
+    log_success("Article date is set fixed at the article submission date.")
+  }
 }
 
 
@@ -448,12 +641,15 @@ extract_tex_vec <- function(path){
     name <- remaining[tools::file_ext(remaining) == "tex"]
 
     if (length(name) == 0)
-        stop("please specify the correct path that contains the .tex file")
+        log_error(
+        "Can't locate the .tex file under the current path,
+        please specify the correct path that contains the .tex file")
 
     ## NOTE: this may match more files if there are stray ones, so we
     ##       concatenate them all
     if (length(name) > 1) {
-        log_warning("Multiple .tex files found: {paste(name, collapse=', ')}")
+        # this will print the msg for every check if there are multiple files
+        #log_warning("Multiple .tex files found: {paste(name, collapse=', ')}")
         unlist(lapply(file.path(path, name), readLines))
     } else
         readLines(file.path(path, name))

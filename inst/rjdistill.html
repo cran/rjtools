@@ -30,7 +30,8 @@
     const buttons = $('<div class="dt-tags" style="grid-column: page;">')
     buttons.append('<a href="#citation" class="dt-tag"><i class="fas fa-quote-left"></i> Cite</a>')
     buttons.append('<a href="' + slug + '.pdf" class="dt-tag"><i class="fas fa-file-pdf"></i> PDF</a>')
-    buttons.append('<a href="https://twitter.com/intent/tweet?text='+title+'&url=' + cite_url + '" class="dt-tag"><i class="fab fa-twitter"></i> Tweet</a>')
+    buttons.append('<a href="' + slug + '.zip" class="dt-tag"><i class="fas fa-file-zipper"></i> Supplement</a>')
+
 
     const abstract = $('<d-abstract>')
     abstract.append('<b>Abstract:</b><br>')
@@ -134,5 +135,34 @@
 
   .header-section-number {
     margin-right: 0.5em;
+  }
+  
+  d-appendix .citation-appendix,
+  .d-appendix .citation-appendix {
+    color: rgb(60, 60, 60);
+  }
+
+  d-article h2 {
+    border-bottom: 0px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0rem;
+  }
+  d-article h3 {
+    font-size: 20px;
+  }
+  d-article h4 {
+    font-size: 18px;
+    text-transform: none;
+  }
+
+  @media (min-width: 1024px) {
+    d-article h2 {
+      font-size: 32px;
+    }
+    d-article h3 {
+      font-size: 24px;
+    }
+    d-article h4 {
+      font-size: 20px;
+    }
   }
 </style>

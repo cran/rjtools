@@ -9,17 +9,17 @@ test_that("different styles for titles are ok", {
   str <- "An R Package for Customizable Tooltips in Interactive Graphics"
   expect_true(rjtools:::check_str(str)$result)
 
-  # use \\pkg{} to mark up pkg name
+  # title should not include special format: \\pkg{}
   str <- "\\pkg{toOoOlTiPs}: An R Package for Customizable Tooltips in Interactive Graphics"
-  expect_true(rjtools:::check_str(str)$result)
+  expect_false(rjtools:::check_str(str)$result)
 
-  # multiple pkgs
+  # title should not include special format: multiple \\pkgs{}
   str <- "\\pkg{toOoOlTiPs}: An R Package for Customizable Tooltips in \\pkg{leaflet}"
-  expect_true(rjtools:::check_str(str)$result)
+  expect_false(rjtools:::check_str(str)$result)
 
-  # with dot in the pkg name
+  # title should not include special format: with dot in the pkg name
   str <- "\\pkg{toOoOlTiPs}: An R Package for Customizable Tooltips in \\pkg{data.table}"
-  expect_true(rjtools:::check_str(str)$result)
+  expect_false(rjtools:::check_str(str)$result)
 
   # use the ignore parameter
   str <- "toOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics"
@@ -29,6 +29,39 @@ test_that("different styles for titles are ok", {
   str <- "toOoOlTiPs: An R Package for Customizable Tooltips in data.table"
   expect_true(rjtools:::check_str(str, ignore = c("toOoOlTiPs", "data.table"))$result)
 })
+
+test_that("check abstract works", {
+
+  # pick up BIOpkg, CRANpkg, and pkg markups
+  str <- "The package \\BIOpkg{toOoOlTiPs} for the R language is great."
+  expect_true(check_abstract_str(str))
+  str <- "The package \\CRANpkg{toOoOlTiPs} for the R language is great."
+  expect_true(check_abstract_str(str))
+  str <- "The package \\pkg{toOoOlTiPs} for the R language is great."
+  expect_true(check_abstract_str(str))
+
+  # pick up citation
+  str <- "It is an \\cite{xxx} package "
+  expect_true(check_abstract_str(str))
+  str <- "It uses different forms of citation: \\citet{fox2009}"
+  expect_true(check_abstract_str(str))
+  str <- "Also, \\citep{bayesassurance}"
+  expect_true(check_abstract_str(str))
+
+  # others
+  str <- "Highlight with \\texttt{xxx()} is not allowed"
+  expect_true(check_abstract_str(str))
+  str <- "neither is \\emph{sdkfjls}"
+  expect_true(check_abstract_str(str))
+  str <- "You should generally not cite \\proglang{R}. "
+  expect_true(check_abstract_str(str))
+
+# pick up mathematics
+  str <- "and great equations $\\mathcal{O}$"
+  expect_true(check_abstract_str(str))
+
+})
+
 
 expect_SUCCESS <- function(expr) expect_equal(c(expr), "SUCCESS")
 expect_NOTE <- function(expr) expect_equal(c(expr), "NOTE")
