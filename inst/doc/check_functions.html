@@ -343,10 +343,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <p>The <code>rjtools</code> package has implemented some automated
-checks on style, spelling, and package availability, according to the R
-Journal format. For a comprehensive instruction on the journal format,
-we recommend authors to follow <a href="https://journal.r-project.org/submissions.html">instructions for
-Authors</a>.</p>
+checks to assess if it appropriately follows the R Journal format. It is
+important that authors read information at <a href="https://journal.r-project.org">journal website</a>.</p>
 <p>This vignette will demonstrate these checks with an example article,
 <a href="https://github.com/rjournal/rjtools/tree/main/inst/paper-with-errors">paper-with-errors</a>,
 where the argument <code>path = path_to_article</code> in the checks
@@ -392,9 +390,9 @@ NOTE: A potential list of spelling to check: tooltips, tooltip, alison, ggplot</
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">check_filenames</span>(<span class="at">path =</span> path_to_article)</span></code></pre></div>
 <p>The .bib file is named <code>Rjreferences.bib</code> when created and
 we recommend setting a consistent name across the .bib, .tex, and .Rmd
-file. A fix to this is to rename the <code>Rjreferences.bib</code> as
-the file name you used when create the article, in our case,
-<code>paper-with-errors</code>.</p>
+file. A fix to this is to <strong>rename</strong> the
+<code>Rjreferences.bib</code> as the file name you used when create the
+article, in our case, <code>paper-with-errors</code>.</p>
 </div>
 <div id="presence-of-unnecessary-files" class="section level2">
 <h2>Presence of unnecessary files</h2>
@@ -411,10 +409,11 @@ Our article don’t have unnecessary files.</p>
 <div id="presence-of-a-motivating-letter" class="section level2">
 <h2>Presence of a motivating letter</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">check_cover_letter</span>(<span class="at">path =</span> path_to_article) </span></code></pre></div>
-<p>Cover letter should be provided for article of type “add-on package”
-and saved at the same folder as the article. The function checks whether
-there is a file containing the word “motivation” in its name. Our
-article passes this check.</p>
+<p>Cover letter should be provided for all articles and saved at the
+same folder as the article. The function checks whether there possible
+motivation letters are in the main directory, and recommends to put them
+in the <code>motivation-letter</code> folder if so. Our article passes
+this check.</p>
 </div>
 <div id="article-title-is-in-title-case" class="section level2">
 <h2>Article title is in title case</h2>
@@ -559,7 +558,8 @@ should learn.</li>
 example, if you use <code>ggplot2</code> to make your plots, the
 citation for this package needs to be added to your paper. See more
 details below if you need help on how ot do this.</li>
-<li>All references need to have a DOI where available.</li>
+<li>All references need to have a DOI where available, best added using
+the URL item.</li>
 <li>The default bibliography style needs to be used.</li>
 <li>Use consistent capitalization for titles in the citations, which may
 require manual editing if extracting citation information from different

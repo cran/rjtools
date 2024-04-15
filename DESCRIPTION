@@ -1,6 +1,6 @@
 Package: rjtools
 Title: Preparing, Checking, and Submitting Articles to the 'R Journal'
-Version: 1.0.12
+Version: 1.0.13
 Authors@R: 
     c(person(given = "Mitchell",
              family = "O'Hara-Wild",
@@ -45,7 +45,7 @@ Config/testthat/edition: 3
 Depends: R (>= 2.10)
 LazyData: true
 NeedsCompilation: no
-Packaged: 2023-10-07 00:34:16 UTC; cookd
+Packaged: 2024-04-15 22:07:00 UTC; cookd
 Author: Mitchell O'Hara-Wild [aut],
   Stephanie Kobakian [aut],
   H. Sherry Zhang [aut],
@@ -54,4 +54,4 @@ Author: Mitchell O'Hara-Wild [aut],
   Christophe Dervieux [aut] (<https://orcid.org/0000-0003-4474-2498>)
 Maintainer: Di Cook <dicook@monash.edu>
 Repository: CRAN
-Date/Publication: 2023-10-07 05:00:11 UTC
+Date/Publication: 2024-04-15 22:30:02 UTC

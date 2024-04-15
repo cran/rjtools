@@ -41,7 +41,7 @@ If you would like to have an interactive plot in the html output, you will also 
 
 Of course, if only a static plot is to be rendered in both outputs, a single code chunk and a single inline reference will be sufficient. 
 
-Note that the structure of a thorough caption is three components: (1) what is the plot/table about, (2) specific details of plot/table, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.
+**Note that the structure of a thorough caption is three components: (1) what is the plot/table about, (2) specific details of plot/table, like what type of display and how variables are mapped, (3) the most important thing that the reader should learn.**
 
 ## Static
 
@@ -88,7 +88,7 @@ For in-text citation, you will something like this:
 
     Figure \@ref(fig:`r "\u0060r"` ifelse(knitr::is_html_output(), 'penguins-interactive', 'penguins-static')`r "\u0060"` shows ...
     
-This line is quite complicated so let's dissect its components: the `ifelse` statement uses `knitr::is_html_output()` to decide if the output is an html or pdf output, then completes the fugure reference to read either `\@ref(fig:penguins-interactive)`, to reference the chunk of the interactive graphic in HTML output, or `\@ref(fig:penguins-static)`, to reference the static figure for PDF output.
+This line is quite complicated so let's dissect its components: the `ifelse` statement uses `knitr::is_html_output()` to decide if the output is an html or pdf output, then completes the figure reference to read either `\@ref(fig:penguins-interactive)`, to reference the chunk of the interactive graphic in HTML output, or `\@ref(fig:penguins-static)`, to reference the static figure for PDF output.
 
 ## Sizing
 
@@ -144,7 +144,13 @@ Alt text is read by a screen reader for people with visual disability and author
 
 # Tables
 
-To use a simple markdown table, you need to add `preamble: \usepackage{longtable}` in the YAML for the tex file to render the pdf output. Another option is to use `knitr::kable()`, where you need to set up two chunks similar to the figures with different `format` arguments:
+For simple markdown tables, please use the rmarkdown syntax for cross-referencing, i.e. 
+
+  * in-line: ````The table \@ref(tab:foo) summarizes ...````
+
+  * markdown table caption: ````Table: (\#tab:foo) An overview of the ...````
+
+For tables generated using `knitr::kable()`, set up two chunks similar to the figures with different `format` arguments:
 
 ````rmarkdown
 `r ''````{r penguins-interactive, eval = knitr::is_html_output()}
@@ -194,7 +200,32 @@ The citation style will be added during the building process and you can find th
 }
 ```
 
-R Journal requires a link for easy access to the reference and this can be done through either the `doi` or `url` field. If both fields are presented, `url` takes priority and we recommend providing the URL link as `url = {https://doi.org/.../...},`.
+R Journal requires a link for easy access to the reference and this can be done through either the `doi` or `url` field. If both fields are presented, `url` takes priority and we recommend providing the URL link as `url = {https://doi.org/.../...},`, i.e.
+
+````
+@article{wickham_tidy_2014,
+	title = {Tidy {Data}},
+	author = {Wickham, Hadley},
+	year = {2014},
+	journal = {Journal of Statistical Software},
+	volume = {59},
+	number = {10},
+	pages = {1--23},
+	url = {https://doi.org/10.18637/jss.v059.i10}
+}
+````
+
+For webpage entries, please use the `url` field instead of `howpublished`, under `@misc`, to provide the link (and the `note` field for access date), i.e.
+
+````
+@Misc{Wiki+HCL,
+  author = {Wikipedia},
+  title = {{HCL Color Space} --- {W}ikipedia{,} The Free Encyclopedia},
+  year = {2023},  
+  url = {https://en.wikipedia.org/wiki/HCL_color_space},
+  note = {accessed 2023-07-12}
+}
+````
 
 
 # Styling

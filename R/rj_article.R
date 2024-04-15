@@ -33,9 +33,14 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
   base_format$post_knit <- function(metadata, input_file, runtime, ...) {
     # Modify YAML metadata for pre-processor
     render_env <- rlang::caller_env(n = 2)
+    # FIXME: renames abstract to description and then later hacks around it by creating
+    # a d-abstract html element by hand in JS (rjdistill.html). This
+    # is incredibly fragile, because the element has no idenficiation tag,
+    # so this should be cleaned up so we can have distill create d-abstract directly...
     metadata <- replace_names(metadata, c("abstract" = "description"))
     metadata$title <- strip_macros(metadata$title)
-    metadata$description <- strip_macros(metadata$description %||% paste0('"', metadata$title, '" published in The R Journal.'))
+    if (is.null(metadata$subtitle)) ## the tools don't support both abstract and subtitle
+      metadata$description <- strip_macros(metadata$description %||% paste0('"', metadata$title, '" published in The R Journal.'))
     for(i in seq_along(metadata$author)) {
       metadata$author[[i]] <- replace_names(metadata$author[[i]], c("orcid" = "orcid_id"))
     }
@@ -105,7 +110,7 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
         ctvs <- local_cache$get("ctv")
       } else {
         ctvs <- readRDS(
-          gzcon(url("https://cran.r-project.org/src/contrib/Views.rds", open = "rb"))
+          gzcon(url(.cran("/src/contrib/Views.rds"), open = "rb"))
         )
         local_cache$add(ctvs, "ctv")
       }
@@ -153,7 +158,7 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
 
     # Add embedded PDF to HTML stubs
     is_stub <- !any(grepl("^\\s*#+\\s*.*", body))
-    embed_pdf <- if(legacy_pdf && is_stub){
+    embed_pdf <- if(isTRUE(metadata$tex_native) || (legacy_pdf && is_stub)) {
       whisker::whisker.render(
         '<div class="l-page">
   <embed src="{{slug}}.pdf" type="application/pdf" height="955px" width="100%">
@@ -330,4 +335,14 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
     on_exit = on_exit,
     base_format = base_format
   )
+}
+
+.cran <- function(path="") {
+  cran <- "http://cran.R-project.org"
+  rep <- getOption("repos")
+  if ("CRAN" %in% names(rep)) {
+    opt <- rep["CRAN"]
+    if (opt != "@CRAN@") cran <- opt
+  }
+  paste0(cran, path)
 }

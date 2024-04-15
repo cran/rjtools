@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -16,6 +16,6 @@ library(rmarkdown)
 #                   file = here::here("vignettes/figures/webshot.png"),
 #                   delay = 1, zoom = 4, vwidth = 1000, vheight = 300)
 
-## ---- out.width="100%", out.height="100%"-------------------------------------
+## ----out.width="100%", out.height="100%"--------------------------------------
 knitr::include_graphics("figures/webshot.png")
 
