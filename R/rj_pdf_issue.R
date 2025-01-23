@@ -106,7 +106,21 @@ rjournal_pdf_issue <- function(..., render_all = FALSE) {
 
           art_type <- if(grepl("^RJ-\\d{4}-\\d{3}$", x$slug)) "_articles" else "_news"
           art_rmd <- file.path("..", "..", art_type, x$slug, xfun::with_ext(x$slug, ".Rmd"))
-          pdf_pages <- pdftools::pdf_length(xfun::with_ext(art_rmd, ".pdf"))
+          art_pdf <- xfun::with_ext(art_rmd, ".pdf")
+
+          # Render the PDF if it doesn't exist yet
+          if(!xfun::file_exists(art_pdf)) {
+            message(sprintf("Rendering PDF for '%s' article.", x$slug))
+            callr::r(function(input){
+              rmarkdown::render(
+                input,
+                output_format = "rjtools::rjournal_pdf_article"
+              )
+            }, args = list(input = art_rmd))
+          }
+
+          # Calculate and update page ranges
+          pdf_pages <- pdftools::pdf_length(art_pdf)
           if(!skip_updates) {
             pages_match <- identical(current_page, start_page) && identical(current_page + pdf_pages - 1L, end_page)
             if(!pages_match || render_all) {
@@ -147,7 +161,12 @@ rjournal_pdf_issue <- function(..., render_all = FALSE) {
       toc_file <- file.path(tempdir(), "toc.md")
     )
     file.copy(
-      list.files(system.file("tex", package = "rjtools"), full.names = TRUE),
+      c(
+        # Style files
+        list.files(system.file("tex", package = "rjtools"), full.names = TRUE),
+        # R Logo
+        system.file("Rlogo-5.png", package = "rjtools")
+      ),
       dirname(toc_file)
     )
     rmarkdown::pandoc_convert(
@@ -210,7 +229,7 @@ rjournal_pdf_issue <- function(..., render_all = FALSE) {
       )
     )
 
-    file.rename(tmp, output_file)
+    file.copy(tmp, output_file, overwrite = TRUE)
     output_file
   }
 

@@ -45,7 +45,7 @@
 #'
 #' See \code{vignette("create_article", package = "rjtools")} for how to use the check functions
 #' @rdname checks
-#' @return list of all results (see \code{\link{log_error}} for
+#' @return list of all results (see \code{log_error} for
 #'     details). You can use \code{unlist()} to get a character vector
 #'     of the result statuses.
 #'
@@ -150,8 +150,9 @@ check_filenames <- function(path) {
 #' @export
 check_structure <- function(path) {
     all <- list.files(path, all.files=TRUE, include.dirs=TRUE, recursive=TRUE)
+    all <- all[!grepl(".Rproj", all)]
     depth <- nchar(gsub("[^/]+", "", all))
-    if (max(depth) > 2)
+    if (max(depth) > 3)
         return(log_error("There are nested subdirectories. Please use at most two directory levels for the article."))
     if (length(dot <- grep("^\\.", gsub(".*/", "", all))))
         log_warning("The archive contains hidden files which will be removed: ", paste(all[dot], collapse=", "))
@@ -200,8 +201,7 @@ check_folder_structure <- function(path){
     Scripts should be organised in the scripts/ folder.
     The master R file generated from rendering should still be in the main directory.")
   } else if (str_length(log_aux) != 0){
-    log_error("Auxiliary log and aux files detected: {log_aux}.
-              They should be removed.")
+    log_note("Remove .log, .aux and .out files before submitting.")
   } else if (str_length(motivation) != 0){
     log_error("Possible motivation or cover letters detected in main folder: {motivation}.
               They should be placed in the motivation-letter/ folder.")
@@ -347,7 +347,7 @@ check_abstract <- function(path){
 
   if (has_special_format){
     log_error("Abstract should be plain text without package markups,
-    mathmatic notations, citation, or other formattings."
+    mathematical notations, citation, or other formattings."
     )
   } else{
     log_success("Abstract formatted in plain text.")
@@ -361,7 +361,7 @@ check_abstract_str <- function(str){
   # citation
   citations <- grepl("\\cite\\{.*\\}|\\citep|\\citet", str)
 
-  others <-  grepl("texttt|\\$.*\\$|emph|proglang", str)
+  others <-  grepl("\\\\texttt|\\$.*\\$|\\\\emph|\\\\proglang", str)
 
   any(c(pkgs, citations, others))
 }
@@ -379,7 +379,7 @@ check_spelling <- function(path, dic = "en_US", ...){
   detect_abstract <- purrr::map(tex, ~stringr::str_extract(.x,  "(?<=\\\\abstract\\{).*?"))
   abstract_loc <- match(detect_abstract[!is.na(detect_abstract)], detect_abstract)
 
-  detect_bib <- purrr::map(tex, ~stringr::str_extract(.x,  "(?<=\\\\bibliography\\{).*?(?=\\})"))
+  detect_bib <- purrr::map(tex, ~stringr::str_extract(.x,  "\\\\section\\*\\{References\\}"))
   bib_loc <- match(detect_bib[!is.na(detect_bib)], detect_bib)
 
   # spell_to_remove is a pre-defined vector of latex commands
@@ -772,8 +772,8 @@ log_factory <- function(result = c("SUCCESS", "NOTE", "WARNING", "ERROR")) {
 #' to an environment then the entry is also added to the journal.
 #'
 #' @param text string, description of the error that occurred,
-#'     will be passed to \code{\link{glue}}.
-#' @param ... additional inputs for text passed to the \code{\link{glue}} function.
+#'     will be passed to \code{\link[glue]{glue}}.
+#' @param ... additional inputs for text passed to the \code{\link[glue]{glue}} function.
 #' @param .envir the environment used to find the text string replacements
 #' @param output type of the output, can either a string (\code{"cli"}
 #'     to use the \code{cli} package (default), \code{"R"} for

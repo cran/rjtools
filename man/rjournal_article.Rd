@@ -7,9 +7,9 @@
 \alias{rjournal_web_article}
 \title{R Markdown output formats for R Journal articles}
 \usage{
-rjournal_article(toc = FALSE, self_contained = FALSE, legacy_pdf = FALSE, ...)
+rjournal_article(toc = FALSE, self_contained = FALSE, ...)
 
-rjournal_pdf_article(..., self_contained = FALSE)
+rjournal_pdf_article(..., self_contained = FALSE, citation_package = "natbib")
 
 rjournal_web_article(toc = FALSE, self_contained = FALSE, ...)
 }
@@ -22,10 +22,13 @@ scripts, stylesheets, images, and videos. Note that even for self contained
 documents MathJax is still loaded externally (this is necessary because of
 its size).}
 
-\item{legacy_pdf}{whether an article is from the past and only have pdf version}
-
 \item{...}{Arguments passed to \code{distill::distill_article()} for web articles,
 and \code{rticles::rjournal_article()} for pdf articles.}
+
+\item{citation_package}{The LaTeX package to process citations, \code{natbib}
+or \code{biblatex}. Use \code{default} if neither package is to be used,
+which means citations will be processed via the command
+\command{pandoc-citeproc}.}
 }
 \value{
 the rendered R Journal article

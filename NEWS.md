@@ -1,3 +1,24 @@
+# rjtools 1.0.17
+
+* Added technical editors to issue template.
+* Fixed missing resources for building table of contents for issues.
+* Improved identification and handling of legacy pdf articles
+* Use natbib for pdf articles (fixes issues with citation rendering)
+* Fixed article buttons (pdf, supplementary files, citation) not showing when abstract is missing.
+
+# rjtools 1.0.16
+
+* Update template article to deal better with the pandoc problem
+* All CRAN lookups now use cran.R-project.org. This resolves problems with some CRAN-like repos (e.g. RSPM) not containing CRAN Views data.
+
+# rjtools 1.0.15
+
+* Pull request #14 fix (fix #122)
+
+# rjtools 1.0.14
+
+* additional issues with checks fixed to completely address issue #119 
+
 # rjtools 1.0.13
 
 * fix error reported by CRAN, occurring on linux, related to test code

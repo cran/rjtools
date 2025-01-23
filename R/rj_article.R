@@ -9,13 +9,12 @@
 #' @param ... Arguments passed to `distill::distill_article()` for web articles,
 #'   and `rticles::rjournal_article()` for pdf articles.
 #' @inheritParams distill::distill_article
-#' @param legacy_pdf whether an article is from the past and only have pdf version
+#'
 #' @importFrom rlang caller_env env_poke
 #' @return the rendered R Journal article
 #' @export
 #' @rdname rjournal_article
-rjournal_article <- function(toc = FALSE, self_contained = FALSE,
-                             legacy_pdf = FALSE, ...) {
+rjournal_article <- function(toc = FALSE, self_contained = FALSE, ...) {
   args <- c()
   base_format <- distill::distill_article(
     self_contained = self_contained, toc = toc, ...
@@ -35,11 +34,11 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
     render_env <- rlang::caller_env(n = 2)
     # FIXME: renames abstract to description and then later hacks around it by creating
     # a d-abstract html element by hand in JS (rjdistill.html). This
-    # is incredibly fragile, because the element has no idenficiation tag,
+    # is incredibly fragile, because the element has no identification tag,
     # so this should be cleaned up so we can have distill create d-abstract directly...
     metadata <- replace_names(metadata, c("abstract" = "description"))
     metadata$title <- strip_macros(metadata$title)
-    if (is.null(metadata$subtitle)) ## the tools don't support both abstract and subtitle
+    if (is.null(metadata$description)) ## the tools don't support both abstract and subtitle
       metadata$description <- strip_macros(metadata$description %||% paste0('"', metadata$title, '" published in The R Journal.'))
     for(i in seq_along(metadata$author)) {
       metadata$author[[i]] <- replace_names(metadata$author[[i]], c("orcid" = "orcid_id"))
@@ -157,8 +156,9 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
     body <- input[(front_matter_delimiters[2]+1):length(input)]
 
     # Add embedded PDF to HTML stubs
-    is_stub <- !any(grepl("^\\s*#+\\s*.*", body))
-    embed_pdf <- if(isTRUE(metadata$tex_native) || (legacy_pdf && is_stub)) {
+    # is_stub <- !any(grepl("^\\s*#+\\s*.*", body))
+    embed_pdf <- if(isTRUE(metadata$tex_native) || (isTRUE(metadata$legacy_pdf) && !isTRUE(metadata$legacy_converted))) {
+      body <- NULL
       whisker::whisker.render(
         '<div class="l-page">
   <embed src="{{slug}}.pdf" type="application/pdf" height="955px" width="100%">
@@ -193,7 +193,7 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
         data <- c(data, list(BIOC = BIOC))
       }
     }
-    if (FALSE && legacy_pdf) {
+    if (isTRUE(metadata$legacy_converted) && isTRUE(metadata$legacy_pdf)) {
       TEXOR <- "This article is converted from a Legacy LaTeX article using the
                 [texor](https://cran.r-project.org/package=texor) package.
                 The pdf version is the official version. To report a problem with the html,
@@ -236,8 +236,9 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
     if(is.null(render_pdf)) return()
 
     # Update legacy PDF metadata just by changing the wrapper
-    if (legacy_pdf) {
+    if (isTRUE(article_metadata$legacy_pdf)) {
       wrapper_path <- file.path(dirname(rmd_path), "RJwrapper.tex")
+      pdf_path <- file.path(dirname(rmd_path), xfun::with_ext(article_metadata$slug, ".pdf"))
       if(!file.exists(wrapper_path)) {
         warning("Could not find wrapper for this legacy article, so the PDF could not be updated.")
         return()
@@ -279,7 +280,7 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
         wrapper <- append(wrapper, "", wrapper_page_counter - 1)
       }
       wrapper[wrapper_page_counter] <- paste0("\\setcounter{page}{", article_metadata$journal$firstpage, "}")
-      if(identical(wrapper, xfun::read_utf8(wrapper_path))) return()
+      if(identical(wrapper, xfun::read_utf8(wrapper_path)) && xfun::file_exists(pdf_path)) return()
       message("Detected changes to the article metadata, re-building PDF.")
       xfun::write_utf8(wrapper, wrapper_path)
 
@@ -294,7 +295,6 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
         file.remove("RJournal.sty"),
         add = TRUE
       )
-      pdf_path <- xfun::with_ext(article_metadata$slug, ".pdf")
       tinytex::latexmk(
         wrapper_path,
         base_format$pandoc$latex_engine,
@@ -340,9 +340,9 @@ rjournal_article <- function(toc = FALSE, self_contained = FALSE,
 .cran <- function(path="") {
   cran <- "http://cran.R-project.org"
   rep <- getOption("repos")
-  if ("CRAN" %in% names(rep)) {
-    opt <- rep["CRAN"]
-    if (opt != "@CRAN@") cran <- opt
-  }
+  # if ("CRAN" %in% names(rep)) {
+  #   opt <- rep["CRAN"]
+  #   if (opt != "@CRAN@") cran <- opt
+  # }
   paste0(cran, path)
 }
